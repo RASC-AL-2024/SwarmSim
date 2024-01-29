@@ -65,29 +65,33 @@ public class DifferentialDrive {
   private int stage = 0;
 
   // Just for turning towards a desired angle
-  private PidController static_angle_controller = new PidController(0.6f, 0.0002f, 0.005f);
+  private PidController static_angle_controller = new PidController(0.6f, 0.001f, 0.005f);
 
   // Moves rover towards goal (ignoring goal angle)
-  private PidController angle_controller = new PidController(0.3f, 0.0001f, 0f);
-  private PidController speed_controller = new PidController(0.15f, 0.0001f, 0f);
+  private PidController angle_controller = new PidController(0.2f, 0.01f, 0f);
+  private PidController speed_controller = new PidController(0.2f, 0.0001f, 0.01f);
 
   // Tracks error of each stage so that we know when to progress to the next one
-  private MovingAverage error_average = new MovingAverage(0.05f);
+  private MovingAverage error_average = new MovingAverage(0.01f);
 
   private State target;
   private State current;
 
   // Controls the accuracy of the controller
   private float arrived_distance = 20f;
-  private float arrived_angle_rad = 0.1f;
+  private float arrived_angle_rad = Mathf.Deg2Rad * 10f;
 
   public DifferentialDrive(State current_, State target_) {
     current = current_;
     target = target_;
   }
 
-  public float signedAngle(float angle) {
-      return angle > (float)Math.PI ? (angle - 2 * (float)Math.PI) : angle;
+  public float reducedAngle(float angle) {
+    angle = Math.Sign(angle) * (Math.Abs(angle) % (2f * (float)Math.PI)); // [-2pi, 2pi]
+    if (Math.Abs(angle) <= Math.PI) {
+      return angle;
+    }
+    return Math.Sign(angle) * (Math.Abs(angle) - 2 * (float) Math.PI); 
   }
 
   public (float velocity, float angular_velocity) step(State current_) {
@@ -128,8 +132,7 @@ public class DifferentialDrive {
       return (target_velocity, target_angular_velocity);
     } else if (stage == 2) {
       // Here we want to point the rover towards the next waypoint
-      float angle_error = signedAngle(target.theta - current.theta);
-      Debug.LogFormat("{0}, {1}, {2}", angle_error, target.theta, current.theta);
+      float angle_error = reducedAngle(reducedAngle(target.theta) - reducedAngle(current.theta));
       error_average.update(Math.Abs(angle_error));
       if (error_average.Average < arrived_angle_rad) {
         ++stage;

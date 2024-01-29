@@ -97,19 +97,18 @@ public class RoverController : MonoBehaviour
     private IEnumerator StartDiffDrive()
     {
         start_state = getCurrentState();
-        goal_state = new State(new Vector2(start_state.pos.x, start_state.pos.y), 1f/2f * (float)Math.PI);
-        // goal_state = new State(new Vector2(start_state.pos.x + 300f, start_state.pos.y + 300f), (float)Math.PI);
+        // goal_state = new State(new Vector2(start_state.pos.x, start_state.pos.y), -1f/2f * (float)Math.PI);
+        goal_state = new State(new Vector2(start_state.pos.x + 300f, start_state.pos.y + 300f), (float)Math.PI);
         diff_drive = new DifferentialDrive(start_state, goal_state);
         
         while (!diff_drive.hasArrived())
         {
             State curr_state = getCurrentState();
             (target_velocity, target_angular_velocity) = diff_drive.step(curr_state);
-            Debug.LogFormat("Target: v: {0}, w: {1}", target_velocity, target_angular_velocity);
             yield return new WaitForSeconds(0.01f);
         }
-        setVelocity(0);
-        setRotation(0);
+        target_velocity = 0;
+        target_angular_velocity = 0;
         yield break;
     }
 
