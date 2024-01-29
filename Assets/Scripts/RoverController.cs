@@ -7,7 +7,6 @@ public class RoverController : MonoBehaviour
 {
     [SerializeField]
     Transform[] leftWheels;
-
     [SerializeField]
     Transform[] rightWheels;
 
@@ -22,8 +21,17 @@ public class RoverController : MonoBehaviour
     private State start_state;
     private State goal_state;
 
-    private float R = 31.5f;
-    private float L = 60f;
+    private float wheel_diameter = 31.5f;
+    private float axle_width = 60f;
+
+    private float max_wheel_speed = 200f; // linear cm/s
+    private float max_wheel_acceleration = 50f; // linear cm/s^2
+
+    private float current_left_velocity = 0f;
+    private float current_right_velocity = 0f;
+
+    private float target_velocity = 0f;
+    private float target_angular_velocity = 0f;
 
     void Start()
     {
@@ -32,30 +40,23 @@ public class RoverController : MonoBehaviour
         StartCoroutine(StartDiffDrive());
     }
 
-    private float getRPM(float v)
+    private float getRadPerSecond(float velocity)
     {
-        return (v / (2.0f * (float)Math.PI * R));
+        return (velocity / ((float)Math.PI * wheel_diameter));
     }
 
-    private void setWheelAnimation(Transform[] wheels, float v)
+    private void setWheelAnimation(Transform[] wheels, float v, bool inverted)
     {
-        float rpm = v; //getRPM(v);
+        float rad_s = getRadPerSecond(v);
         foreach (Transform wheel in wheels)
         {
-            wheel.Rotate(Vector3.forward, rpm * Time.deltaTime, Space.Self);
+            wheel.Rotate(Vector3.forward, (inverted ? -1 : 1) * Mathf.Rad2Deg * rad_s * Time.deltaTime, Space.Self);
         }
     }
 
-    private void uniToDiff(float v, float w, out float vR, out float vL)
+    private (float left_velocity, float right_velocity) wheelVelocities(float v, float w)
     {
-        vR = (2 * v + w * L) / (2 * R);
-        vL = (2 * v - w * L) / (2 * R);
-    }
-
-    private void diffToUni(float vR, float vL, out float v, out float w)
-    {
-        v = R / 2 * (vR + vL);
-        w = R / L * (vR - vL);
+        return (v - axle_width / 2 * w, v + axle_width / 2 * w);
     }
 
     private void setVelocity(float v)
@@ -70,14 +71,18 @@ public class RoverController : MonoBehaviour
         center_rb.AddRelativeTorque(Vector3.up * appliedRotation, ForceMode.VelocityChange);
     }
 
-    private void applyAction(float v, float w)
-    {
-        float vL, vR;
-        uniToDiff(v, w, out vR, out vL);
-        setWheelAnimation(leftWheels, vL*30);
-        setWheelAnimation(rightWheels, vR*30);
-        setVelocity(v);
-        setRotation(w);
+    private float limitVelocityChange(float current_velocity, float target_velocity, float dt) {
+      float acceleration = Mathf.Clamp((target_velocity - current_velocity) / dt, -max_wheel_acceleration, max_wheel_acceleration);
+      float new_velocity = Mathf.Clamp(current_velocity + acceleration * dt, -max_wheel_speed, max_wheel_speed);
+      return new_velocity;
+    }
+
+    private float currentVelocity() {
+      return (current_left_velocity + current_right_velocity) / 2;
+    }
+
+    private float currentAngularVelocity() {
+      return (current_right_velocity - current_left_velocity) / axle_width;
     }
 
     private State getCurrentState()
@@ -92,24 +97,33 @@ public class RoverController : MonoBehaviour
     private IEnumerator StartDiffDrive()
     {
         start_state = getCurrentState();
-        goal_state = new State(new Vector2(start_state.pos.x + 100f, start_state.pos.y), 0f);
+        goal_state = new State(new Vector2(start_state.pos.x, start_state.pos.y), 1f/2f * (float)Math.PI);
+        // goal_state = new State(new Vector2(start_state.pos.x + 300f, start_state.pos.y + 300f), (float)Math.PI);
         diff_drive = new DifferentialDrive(start_state, goal_state);
-        float v, w;
         
         while (!diff_drive.hasArrived())
         {
             State curr_state = getCurrentState();
-            diff_drive.step(curr_state, out v, out w);
-            applyAction(v, w);
-            yield return new WaitForSeconds(diff_drive.dt);
+            (target_velocity, target_angular_velocity) = diff_drive.step(curr_state);
+            Debug.LogFormat("Target: v: {0}, w: {1}", target_velocity, target_angular_velocity);
+            yield return new WaitForSeconds(0.01f);
         }
         setVelocity(0);
         setRotation(0);
         yield break;
     }
 
-    void Update()
-    {
+    void Update() {
+        (float vL, float vR) = wheelVelocities(target_velocity, target_angular_velocity); 
+        (float target_left_velocity, float target_right_velocity) = wheelVelocities(target_velocity, target_angular_velocity);
+        float dt = Time.deltaTime;
+        current_left_velocity = limitVelocityChange(current_left_velocity, target_left_velocity, dt);
+        current_right_velocity = limitVelocityChange(current_right_velocity, target_right_velocity, dt);
 
+        setWheelAnimation(leftWheels, current_left_velocity, true);
+        setWheelAnimation(rightWheels, current_right_velocity, false);
+
+        setVelocity(currentVelocity());
+        setRotation(currentAngularVelocity());
     }
 }
