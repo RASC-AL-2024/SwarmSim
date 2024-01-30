@@ -140,7 +140,6 @@ public class DifferentialDrive {
     } else if (stage == 2) {
       // Here we want to point the rover towards the next waypoint
       float angle_error = reducedAngle(reducedAngle(target.theta) - reducedAngle(current.theta));
-      Debug.LogFormat("{0}, {1}, {2}", angle_error, reducedAngle(target.theta), reducedAngle(current.theta));
 
       // Are we pointed close?
       error_average.update(Math.Abs(angle_error));
