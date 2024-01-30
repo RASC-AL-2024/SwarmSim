@@ -89,7 +89,7 @@ public class RoverController : MonoBehaviour
     {
         float x = center_t.position.x;
         float y = center_t.position.z;
-        float theta = Mathf.Deg2Rad * center_t.localEulerAngles.y;
+        float theta = -Mathf.Deg2Rad * center_t.localEulerAngles.y;
         State current_state = new State(new Vector2(x, y), theta);
         return current_state;
     }
@@ -97,7 +97,6 @@ public class RoverController : MonoBehaviour
     private IEnumerator StartDiffDrive()
     {
         start_state = getCurrentState();
-        // goal_state = new State(new Vector2(start_state.pos.x, start_state.pos.y), -1f/2f * (float)Math.PI);
         goal_state = new State(new Vector2(start_state.pos.x + 300f, start_state.pos.y + 300f), (float)Math.PI);
         diff_drive = new DifferentialDrive(start_state, goal_state);
         

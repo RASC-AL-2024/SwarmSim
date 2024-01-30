@@ -68,17 +68,17 @@ public class DifferentialDrive {
   private PidController static_angle_controller = new PidController(0.6f, 0.001f, 0.005f);
 
   // Moves rover towards goal (ignoring goal angle)
-  private PidController angle_controller = new PidController(0.2f, 0.01f, 0f);
-  private PidController speed_controller = new PidController(0.2f, 0.0001f, 0.01f);
+  private PidController angle_controller = new PidController(0.5f, 0.0f, 0.0f);
+  private PidController speed_controller = new PidController(0.2f, 0.0001f, 0.1f);
 
   // Tracks error of each stage so that we know when to progress to the next one
-  private MovingAverage error_average = new MovingAverage(0.01f);
+  private MovingAverage error_average = new MovingAverage(0.05f);
 
   private State target;
   private State current;
 
   // Controls the accuracy of the controller
-  private float arrived_distance = 20f;
+  private float arrived_distance = 30f;
   private float arrived_angle_rad = Mathf.Deg2Rad * 10f;
 
   public DifferentialDrive(State current_, State target_) {
@@ -94,18 +94,22 @@ public class DifferentialDrive {
     return Math.Sign(angle) * (Math.Abs(angle) - 2 * (float) Math.PI); 
   }
 
+  private Vector2 direction(float theta) {
+    return new Vector2((float)Math.Cos(theta), (float)Math.Sin(theta));
+  }
+
   public (float velocity, float angular_velocity) step(State current_) {
     current = current_;
     if (stage == 0) {
       // Here we want to point the rover towards the next waypoint
-      Vector2 current_direction = new Vector2((float)Math.Cos(current.theta), -(float)Math.Sin(current.theta));
+      Vector2 current_direction = direction(current.theta);
       Vector2 position_delta = target.pos - current.pos;
 
       float angle_error = Mathf.Deg2Rad * Vector2.SignedAngle(current_direction, position_delta);
       error_average.update(Math.Abs(angle_error));
-
       float target_angular_velocity = static_angle_controller.update(angle_error);
 
+      // Have we been close enough in direction?
       if (error_average.Average < arrived_angle_rad) {
         ++stage;
         static_angle_controller.clear();
@@ -114,31 +118,37 @@ public class DifferentialDrive {
 
       return (0f, target_angular_velocity);
     } else if (stage == 1) {
-      Vector2 current_direction = new Vector2((float)Math.Cos(current.theta), -(float)Math.Sin(current.theta));
+      Vector2 current_direction = direction(current.theta);
       Vector2 position_delta = target.pos - current.pos;
+
+      // Are we close to the waypoint?
       error_average.update(position_delta.magnitude);
       if (error_average.Average < arrived_distance) {
         ++stage;
         error_average.clear();
       }
 
-      // We don't want to speed up if we are going orthogonal 
+      // Don't speed up if we are going orthogonal 
       float distance_error = Vector2.Dot(position_delta, current_direction);
 
       float target_velocity = speed_controller.update(distance_error);
 
       float angle_error = Mathf.Deg2Rad * Vector2.SignedAngle(current_direction, position_delta);
       float target_angular_velocity = angle_controller.update(angle_error);
+
       return (target_velocity, target_angular_velocity);
     } else if (stage == 2) {
       // Here we want to point the rover towards the next waypoint
       float angle_error = reducedAngle(reducedAngle(target.theta) - reducedAngle(current.theta));
+      Debug.LogFormat("{0}, {1}, {2}", angle_error, reducedAngle(target.theta), reducedAngle(current.theta));
+
+      // Are we pointed close?
       error_average.update(Math.Abs(angle_error));
       if (error_average.Average < arrived_angle_rad) {
         ++stage;
       }
 
-      float target_angular_velocity = static_angle_controller.update(-angle_error);
+      float target_angular_velocity = static_angle_controller.update(angle_error);
       return (0f, target_angular_velocity);
     }
 
