@@ -73,7 +73,6 @@ public class RRT : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-
         start = GameObject.Find("Start");
         goal = GameObject.Find("Goal");
 
