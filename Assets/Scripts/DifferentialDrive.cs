@@ -65,7 +65,7 @@ public class DifferentialDrive {
   private int stage = 0;
 
   // Just for turning towards a desired angle
-  private PidController static_angle_controller = new PidController(5f, 0.00f, 0.000f); // new PidController(0.6f, 0.001f, 0.005f);
+  private PidController static_angle_controller = new PidController(5f, 0.00f, 0.000f);
 
   // Moves rover towards goal (ignoring goal angle)
   private PidController angle_controller = new PidController(1.0f, 0.0f, 0.0f);
@@ -106,7 +106,6 @@ public class DifferentialDrive {
       Vector2 position_delta = target.pos - current.pos;
 
       float angle_error = Mathf.Deg2Rad * Vector2.SignedAngle(current_direction, position_delta);
-      Debug.LogFormat("Angle error: {0}", angle_error);
       error_average.update(Math.Abs(angle_error));
       float target_angular_velocity = static_angle_controller.update(angle_error);
 
@@ -135,7 +134,6 @@ public class DifferentialDrive {
       float target_velocity = speed_controller.update(distance_error);
 
       float angle_error = Mathf.Deg2Rad * Vector2.SignedAngle(current_direction, position_delta);
-      Debug.LogFormat("Distance error: {0}, Angle error: {1}", distance_error, angle_error);
       float target_angular_velocity = angle_controller.update(angle_error);
 
       return (target_velocity, target_angular_velocity);

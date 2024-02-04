@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class RoverController2 : MonoBehaviour
+public class RoverController : MonoBehaviour
 {
   [SerializeField]
   public ArticulationBody[] leftWheels;
@@ -34,7 +34,6 @@ public class RoverController2 : MonoBehaviour
 
   void Start() {
     center_t = center.GetComponent<Transform>();
-    StartCoroutine(StartDiffDrive());
   }
 
   private State getCurrentState() {
@@ -45,20 +44,22 @@ public class RoverController2 : MonoBehaviour
     return current_state;
   }
 
-  private IEnumerator StartDiffDrive() {
+  private IEnumerator waitWaypointImpl(State goal_state) {
     start_state = getCurrentState();
-    goal_state = new State(new Vector2(start_state.pos.x + 10f, start_state.pos.y + 10f), (float)Math.PI);
     diff_drive = new DifferentialDrive(start_state, goal_state);
     
     while (!diff_drive.hasArrived()) {
       State curr_state = getCurrentState();
       (target_velocity, target_angular_velocity) = diff_drive.step(curr_state);
-      Debug.LogFormat("v: {0}, w: {1}", target_velocity, target_angular_velocity);
       yield return new WaitForSeconds(0.01f);
     }
     target_velocity = 0;
     target_angular_velocity = 0;
     yield break;
+  }
+
+  public IEnumerator waitWaypoint(State goal_state) {
+    yield return StartCoroutine(waitWaypointImpl(goal_state));
   }
 
   float constrainVelocity(float v) {
@@ -68,11 +69,9 @@ public class RoverController2 : MonoBehaviour
   void Update() {
     (float wL, float wR) = wheelVelocities(target_velocity, target_angular_velocity); 
 
-    Debug.LogFormat("l: {0}, r: {1}", wL, wR);
+    // Scale so we don't go too fast
     float d = Math.Max(Mathf.Abs(wR / max_wheel_velocity), Mathf.Abs(wL / max_wheel_velocity));
     d = d > 1f ? d : 1f;
-    Debug.LogFormat("d: {0}", d);
-    Debug.LogFormat("dl: {0}, dr: {1}", Mathf.Rad2Deg * wL / d, Mathf.Rad2Deg * wR / d);
 
     // These target velocities are in deg/s
     foreach (var wheel in leftWheels) {
