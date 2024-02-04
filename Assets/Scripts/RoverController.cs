@@ -3,125 +3,87 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class RoverController : MonoBehaviour
+public class RoverController2 : MonoBehaviour
 {
-    [SerializeField]
-    Transform[] leftWheels;
-    [SerializeField]
-    Transform[] rightWheels;
+  [SerializeField]
+  public ArticulationBody[] leftWheels;
+  [SerializeField]
+  public ArticulationBody[] rightWheels;
 
-    [SerializeField]
-    GameObject center;
+  [SerializeField]
+  GameObject center;
 
-    private Rigidbody center_rb;
-    private Transform center_t;
+  private Transform center_t;
 
-    private DifferentialDrive diff_drive;
+  private DifferentialDrive diff_drive;
 
-    private State start_state;
-    private State goal_state;
+  private State start_state;
+  private State goal_state;
 
-    private float wheel_diameter = 31.5f;
-    private float axle_width = 60f;
+  private float wheel_diameter = 0.336f;
+  private float axle_width = 0.60f;
+  private float max_wheel_velocity = 1; // rad/s
 
-    private float max_wheel_speed = 200f; // linear cm/s
-    private float max_wheel_acceleration = 50f; // linear cm/s^2
+  private float target_velocity = 0f;
+  private float target_angular_velocity = 0f;
 
-    private float current_left_velocity = 0f;
-    private float current_right_velocity = 0f;
+  private (float wL, float wR) wheelVelocities(float v, float w) {
+    float s = 2 / wheel_diameter;
+    return ((v - w * axle_width / 2) * s, (v + axle_width / 2 * w) * s);
+  }
 
-    private float target_velocity = 0f;
-    private float target_angular_velocity = 0f;
+  void Start() {
+    center_t = center.GetComponent<Transform>();
+    StartCoroutine(StartDiffDrive());
+  }
 
-    void Start()
-    {
-        center_rb = center.GetComponent<Rigidbody>();
-        center_t = center.GetComponent<Transform>();
-        StartCoroutine(StartDiffDrive());
+  private State getCurrentState() {
+    float x = center_t.position.x;
+    float y = center_t.position.z;
+    float theta = -Mathf.Deg2Rad * center_t.localEulerAngles.y;
+    State current_state = new State(new Vector2(x, y), theta);
+    return current_state;
+  }
+
+  private IEnumerator StartDiffDrive() {
+    start_state = getCurrentState();
+    goal_state = new State(new Vector2(start_state.pos.x + 10f, start_state.pos.y + 10f), (float)Math.PI);
+    diff_drive = new DifferentialDrive(start_state, goal_state);
+    
+    while (!diff_drive.hasArrived()) {
+      State curr_state = getCurrentState();
+      (target_velocity, target_angular_velocity) = diff_drive.step(curr_state);
+      Debug.LogFormat("v: {0}, w: {1}", target_velocity, target_angular_velocity);
+      yield return new WaitForSeconds(0.01f);
     }
+    target_velocity = 0;
+    target_angular_velocity = 0;
+    yield break;
+  }
 
-    private float getRadPerSecond(float velocity)
-    {
-        return (velocity / ((float)Math.PI * wheel_diameter));
+  float constrainVelocity(float v) {
+    return Math.Sign(v) * Mathf.Min(max_wheel_velocity, Mathf.Abs(v));
+  }
+
+  void Update() {
+    (float wL, float wR) = wheelVelocities(target_velocity, target_angular_velocity); 
+
+    Debug.LogFormat("l: {0}, r: {1}", wL, wR);
+    float d = Math.Max(Mathf.Abs(wR / max_wheel_velocity), Mathf.Abs(wL / max_wheel_velocity));
+    d = d > 1f ? d : 1f;
+    Debug.LogFormat("d: {0}", d);
+    Debug.LogFormat("dl: {0}, dr: {1}", Mathf.Rad2Deg * wL / d, Mathf.Rad2Deg * wR / d);
+
+    // These target velocities are in deg/s
+    foreach (var wheel in leftWheels) {
+      var drive = wheel.xDrive;
+      drive.targetVelocity = Mathf.Rad2Deg * wL / d;
+      wheel.xDrive = drive;
     }
-
-    private void setWheelAnimation(Transform[] wheels, float v, bool inverted)
-    {
-        float rad_s = getRadPerSecond(v);
-        foreach (Transform wheel in wheels)
-        {
-            wheel.Rotate(Vector3.forward, (inverted ? -1 : 1) * Mathf.Rad2Deg * rad_s * Time.deltaTime, Space.Self);
-        }
+    foreach (var wheel in rightWheels) {
+      var drive = wheel.xDrive;
+      drive.targetVelocity = Mathf.Rad2Deg * wR / d;
+      wheel.xDrive = drive;
     }
-
-    private (float left_velocity, float right_velocity) wheelVelocities(float v, float w)
-    {
-        return (v - axle_width / 2 * w, v + axle_width / 2 * w);
-    }
-
-    private void setVelocity(float v)
-    {
-        float appliedSpeed = Time.fixedDeltaTime * v;
-        center_rb.AddRelativeForce(Vector3.right * appliedSpeed, ForceMode.VelocityChange);
-    }
-
-    private void setRotation(float w)
-    {
-        float appliedRotation = -1f * Time.fixedDeltaTime * w;
-        center_rb.AddRelativeTorque(Vector3.up * appliedRotation, ForceMode.VelocityChange);
-    }
-
-    private float limitVelocityChange(float current_velocity, float target_velocity, float dt) {
-      float acceleration = Mathf.Clamp((target_velocity - current_velocity) / dt, -max_wheel_acceleration, max_wheel_acceleration);
-      float new_velocity = Mathf.Clamp(current_velocity + acceleration * dt, -max_wheel_speed, max_wheel_speed);
-      return new_velocity;
-    }
-
-    private float currentVelocity() {
-      return (current_left_velocity + current_right_velocity) / 2;
-    }
-
-    private float currentAngularVelocity() {
-      return (current_right_velocity - current_left_velocity) / axle_width;
-    }
-
-    private State getCurrentState()
-    {
-        float x = center_t.position.x;
-        float y = center_t.position.z;
-        float theta = -Mathf.Deg2Rad * center_t.localEulerAngles.y;
-        State current_state = new State(new Vector2(x, y), theta);
-        return current_state;
-    }
-
-    private IEnumerator StartDiffDrive()
-    {
-        start_state = getCurrentState();
-        goal_state = new State(new Vector2(start_state.pos.x + 300f, start_state.pos.y + 300f), (float)Math.PI);
-        diff_drive = new DifferentialDrive(start_state, goal_state);
-        
-        while (!diff_drive.hasArrived())
-        {
-            State curr_state = getCurrentState();
-            (target_velocity, target_angular_velocity) = diff_drive.step(curr_state);
-            yield return new WaitForSeconds(0.01f);
-        }
-        target_velocity = 0;
-        target_angular_velocity = 0;
-        yield break;
-    }
-
-    void Update() {
-        (float vL, float vR) = wheelVelocities(target_velocity, target_angular_velocity); 
-        (float target_left_velocity, float target_right_velocity) = wheelVelocities(target_velocity, target_angular_velocity);
-        float dt = Time.deltaTime;
-        current_left_velocity = limitVelocityChange(current_left_velocity, target_left_velocity, dt);
-        current_right_velocity = limitVelocityChange(current_right_velocity, target_right_velocity, dt);
-
-        setWheelAnimation(leftWheels, current_left_velocity, true);
-        setWheelAnimation(rightWheels, current_right_velocity, false);
-
-        setVelocity(currentVelocity());
-        setRotation(currentAngularVelocity());
-    }
+  }
 }

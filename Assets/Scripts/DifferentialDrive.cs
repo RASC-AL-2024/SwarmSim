@@ -65,11 +65,11 @@ public class DifferentialDrive {
   private int stage = 0;
 
   // Just for turning towards a desired angle
-  private PidController static_angle_controller = new PidController(0.6f, 0.001f, 0.005f);
+  private PidController static_angle_controller = new PidController(5f, 0.00f, 0.000f); // new PidController(0.6f, 0.001f, 0.005f);
 
   // Moves rover towards goal (ignoring goal angle)
-  private PidController angle_controller = new PidController(0.5f, 0.0f, 0.0f);
-  private PidController speed_controller = new PidController(0.2f, 0.0001f, 0.1f);
+  private PidController angle_controller = new PidController(1.0f, 0.0f, 0.0f);
+  private PidController speed_controller = new PidController(0.5f, 0.0f, 0.0f);
 
   // Tracks error of each stage so that we know when to progress to the next one
   private MovingAverage error_average = new MovingAverage(0.05f);
@@ -78,7 +78,7 @@ public class DifferentialDrive {
   private State current;
 
   // Controls the accuracy of the controller
-  private float arrived_distance = 30f;
+  private float arrived_distance = 0.30f;
   private float arrived_angle_rad = Mathf.Deg2Rad * 10f;
 
   public DifferentialDrive(State current_, State target_) {
@@ -106,6 +106,7 @@ public class DifferentialDrive {
       Vector2 position_delta = target.pos - current.pos;
 
       float angle_error = Mathf.Deg2Rad * Vector2.SignedAngle(current_direction, position_delta);
+      Debug.LogFormat("Angle error: {0}", angle_error);
       error_average.update(Math.Abs(angle_error));
       float target_angular_velocity = static_angle_controller.update(angle_error);
 
@@ -134,6 +135,7 @@ public class DifferentialDrive {
       float target_velocity = speed_controller.update(distance_error);
 
       float angle_error = Mathf.Deg2Rad * Vector2.SignedAngle(current_direction, position_delta);
+      Debug.LogFormat("Distance error: {0}, Angle error: {1}", distance_error, angle_error);
       float target_angular_velocity = angle_controller.update(angle_error);
 
       return (target_velocity, target_angular_velocity);
