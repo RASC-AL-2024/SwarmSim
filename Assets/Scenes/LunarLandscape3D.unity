@@ -430,6 +430,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 231589105}
   m_LocalEulerAnglesHint: {x: 15, y: -45, z: 0}
+--- !u!1 &298185380
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 298185382}
+  - component: {fileID: 298185381}
+  m_Layer: 0
+  m_Name: Main
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &298185381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 298185380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f9322275fc476f4a853894c484c9e9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rover_prefab: {fileID: 959296729}
+  n_rovers: 1
+  time_scale: 10
+  lander_position: {fileID: 1311026426}
+  terrain: {fileID: 1328898109}
+--- !u!4 &298185382
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 298185380}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 11.368831, y: 2.4296522, z: -17.352983}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &408431185 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8957667725909074470, guid: ad1730ddcb9184b4680529394bfb7766, type: 3}
@@ -1353,3 +1402,4 @@ SceneRoots:
   - {fileID: 2137635879}
   - {fileID: 575427574}
   - {fileID: 1311026426}
+  - {fileID: 298185382}
