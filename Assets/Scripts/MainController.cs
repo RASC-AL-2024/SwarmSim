@@ -29,7 +29,6 @@ public class MainController : MonoBehaviour
     {
         Time.timeScale = time_scale;
         center_position = lander_position.position;
-        PointCloud.g_point_cloud = new PointCloud(n_rovers+1);
         spawnRovers();
     }
 

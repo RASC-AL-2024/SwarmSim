@@ -63,14 +63,11 @@ public class RoverController : MonoBehaviour
         return dist < min_dist;
     }
 
-    private IEnumerator generateDWAPlan(State goal_state)
+    private IEnumerator generateRVOPlan(State goal_state)
     {
         while (!closeEnough(goal_state))
         {
-            current_state = getCurrentState();
-            current_velocity = DWA.DWAPlanner.Planning(current_state, current_velocity, goal_state.pos, PointCloud.g_point_cloud, id);
-            PointCloud.g_point_cloud.points[id] = current_state.pos;
-            yield return new WaitForSeconds(0.1f);
+
         }
         current_velocity.linear_vel = 0f;
         current_velocity.angular_vel = 0f;
@@ -79,7 +76,7 @@ public class RoverController : MonoBehaviour
 
     public IEnumerator waitWaypoint(State goal_state)
     {
-        yield return StartCoroutine(generateDWAPlan(goal_state));
+        yield return StartCoroutine(generateRVOPlan(goal_state));
     }
 
     float constrainVelocity(float v)
