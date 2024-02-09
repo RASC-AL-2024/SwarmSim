@@ -7,6 +7,7 @@ public class State
 {
     public Vector2 pos;
     public float theta;
+    public Quaternion rot;
 
     public State()
     {

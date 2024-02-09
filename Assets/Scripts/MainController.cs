@@ -7,19 +7,16 @@ public class MainController : MonoBehaviour
 {
     [SerializeField]
     GameObject rover_prefab;
-
     [SerializeField]
-    int n_rovers = 1;
-
-    [SerializeField]
-    float time_scale = 10f;
-
+    GameObject processingStation;
     [SerializeField]
     Transform lander_position;
-
+    [SerializeField]
+    int n_rovers = 1;
+    [SerializeField]
+    float time_scale = 10f;
     [SerializeField]
     Terrain terrain;
-
     [SerializeField]
     UdpSocket udp_socket;
 
@@ -32,6 +29,7 @@ public class MainController : MonoBehaviour
     {
         Time.timeScale = time_scale;
         center_position = lander_position.position;
+        PointCloud.g_point_cloud = new PointCloud(n_rovers+1);
         spawnRovers();
     }
 
@@ -44,6 +42,8 @@ public class MainController : MonoBehaviour
             Vector3 position = randomPositionInCircle(center_position, radius, angle);
             GameObject next_instance = Instantiate(rover_prefab, position, Quaternion.identity);
             next_instance.GetComponent<MineController>().id = i + 1;
+            next_instance.GetComponent<MineController>().processingStation = processingStation;
+
             rovers[i] = next_instance;
         }
     }

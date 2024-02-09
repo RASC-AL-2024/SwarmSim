@@ -41,17 +41,11 @@ public class MineController : MonoBehaviour
     {
         rover_state = new RoverState(id);
         roverController = GetComponent<RoverController>();
+        roverController.id = id;
 
         var t = processingStation.GetComponent<Transform>();
         processingState = new State(new Vector2(t.position.x + 2, t.position.z - 2), 0);
         StartCoroutine(Background());
-    }
-
-    private State[] trajectorySolve(State goalState)
-    {
-        // Nothing smart for now
-        State[] trajectory = { goalState };
-        return trajectory;
     }
 
     private T randomElement<T>(T[] arr)
@@ -74,14 +68,10 @@ public class MineController : MonoBehaviour
         {
             PRINT("Moving to mine");
             {
-                var goalState = stateInBounds(randomElement(resourceAreas));
-                var trajectory = trajectorySolve(goalState);
-                foreach (var state in trajectory)
-                {
-                    yield return roverController.waitWaypoint(state);
-                }
+                var goal_state = stateInBounds(randomElement(resourceAreas));
+                yield return roverController.waitWaypoint(goal_state);
             }
-
+            
             PRINT("Mining");
             {
                 yield return new WaitForSeconds(miningDuration);
@@ -90,11 +80,7 @@ public class MineController : MonoBehaviour
 
             PRINT("Moving to processing");
             {
-                var trajectory = trajectorySolve(processingState);
-                foreach (var state in trajectory)
-                {
-                    yield return roverController.waitWaypoint(state);
-                }
+                yield return roverController.waitWaypoint(processingState);
             }
 
             PRINT("Processing");
