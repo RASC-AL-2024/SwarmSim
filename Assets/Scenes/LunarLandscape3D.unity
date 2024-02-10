@@ -342,7 +342,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 298185382}
-  - component: {fileID: 298185381}
+  - component: {fileID: 298185383}
   m_Layer: 0
   m_Name: Main
   m_TagString: Untagged
@@ -350,26 +350,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &298185381
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 298185380}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f9322275fc476f4a853894c484c9e9b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rover_prefab: {fileID: 2230870242532212566, guid: 36794625dcee7a84ca7ad87fdb3fa2b2, type: 3}
-  n_rovers: 3
-  time_scale: 10
-  lander_position: {fileID: 1311026426}
-  terrain: {fileID: 1328898109}
-  udp_socket: {fileID: 0}
-  test: {fileID: 355061656}
-  processingStation: {fileID: 1311026423}
 --- !u!4 &298185382
 Transform:
   m_ObjectHideFlags: 0
@@ -385,6 +365,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &298185383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 298185380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5f8b68b90069dc49b29fb96f2f3ecfd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentPrefab: {fileID: 3972119860936325249, guid: 3fbaa6e08ce229d4c93d23965d6bd3b8, type: 3}
+  processingStation: {fileID: 1311026423}
+  lander_position: {fileID: 1311026426}
+  n_rovers: 5
+  time_scale: 5
+  terrain: {fileID: 1328898109}
+  udp_socket: {fileID: 0}
 --- !u!1 &355061656
 GameObject:
   m_ObjectHideFlags: 0
@@ -547,9 +546,17 @@ PrefabInstance:
       value: -0.5
       objectReference: {fileID: 0}
     - target: {fileID: 3417401725289253394, guid: ad1730ddcb9184b4680529394bfb7766, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3417401725289253394, guid: ad1730ddcb9184b4680529394bfb7766, type: 3}
       propertyPath: processingStation
       value: 
       objectReference: {fileID: 1311026423}
+    - target: {fileID: 5389631546112962621, guid: ad1730ddcb9184b4680529394bfb7766, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5957448906215622113, guid: ad1730ddcb9184b4680529394bfb7766, type: 3}
       propertyPath: m_ParentAnchorPosition.x
       value: -55.494118

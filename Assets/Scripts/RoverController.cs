@@ -24,7 +24,7 @@ public class RoverController : MonoBehaviour
 
     private float wheel_diameter = 0.336f;
     private float axle_width = 0.60f;
-    private float max_wheel_velocity = 2; // rad/s
+    private float maxwheel_velocity = 2; // rad/s
 
     private float target_velocity = 0f;
     private float target_angular_velocity = 0f;
@@ -81,7 +81,7 @@ public class RoverController : MonoBehaviour
 
     float constrainVelocity(float v)
     {
-        return Math.Sign(v) * Mathf.Min(max_wheel_velocity, Mathf.Abs(v));
+        return Math.Sign(v) * Mathf.Min(maxwheel_velocity, Mathf.Abs(v));
     }
 
     void Update()
@@ -89,7 +89,7 @@ public class RoverController : MonoBehaviour
         (float wL, float wR) = wheelVelocities(current_velocity.linear_vel, current_velocity.angular_vel);
 
         // Scale so we don't go too fast
-        float d = Math.Max(Mathf.Abs(wR / max_wheel_velocity), Mathf.Abs(wL / max_wheel_velocity));
+        float d = Math.Max(Mathf.Abs(wR / maxwheel_velocity), Mathf.Abs(wL / maxwheel_velocity));
         d = d > 1f ? d : 1f;
 
         // These target velocities are in deg/s

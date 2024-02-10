@@ -29,10 +29,10 @@ public class MineController : MonoBehaviour
 
     Vector2 randomStateInBounds(Bounds bounds)
     {
-        float x_offset = 1f;
+        float xoffset = 1f;
         float z_offset = 1f;
 
-        float x = UnityEngine.Random.Range(bounds.min.x + x_offset, bounds.max.x - x_offset);
+        float x = UnityEngine.Random.Range(bounds.min.x + xoffset, bounds.max.x - xoffset);
         float z = UnityEngine.Random.Range(bounds.min.z + z_offset, bounds.max.z - z_offset);
         return new Vector2(x, z);
     }
@@ -99,5 +99,5 @@ public class MineController : MonoBehaviour
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireCube(bounds.center, bounds.size);
         }
-    }
+    } 
 }
