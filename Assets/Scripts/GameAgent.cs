@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define NO_PHYSICS
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using RVO;
@@ -18,13 +20,25 @@ public class GameAgent : MonoBehaviour
     [SerializeField]
     public float processingDuration; // seconds
 
-    public bool move_down = false;
+    [SerializeField]
+    public ArticulationBody[] leftWheels;
+    [SerializeField]
+    public ArticulationBody[] rightWheels;
 
     RoverState rover_state;
-    
+
     /** Random number generator. */
     private Random m_random = new Random();
     State processingState;
+
+    private float wheel_diameter = 0.336f;
+    private float axle_width = 0.60f;
+    private float maxwheel_velocity = 2; // rad/s
+
+    private float target_velocity = 0f;
+    private float target_angular_velocity = 0f;
+
+    private Velocity current_velocity;
 
     private State stateInBounds(Bounds bounds)
     {
@@ -66,33 +80,56 @@ public class GameAgent : MonoBehaviour
         return diff.magnitude < tolerance;
     }
 
-    void wrongWay(Vector2 vel)
+    float getAngularVelocity(Quaternion from_rotation, Quaternion to_rotation)
     {
-        if (vel.sqrMagnitude < 0.01f) return;
+        Vector3 fromDirection = from_rotation * Vector3.forward;
+        Vector3 toDirection = to_rotation * Vector3.forward;
 
-        transform.forward = new Vector3(vel.x, 0, vel.y).normalized;
-        Vector3 delta_vec = new Vector3(vel.x, 0, vel.y);
-        transform.position += delta_vec * Time.deltaTime;
+        fromDirection.y = 0;
+        toDirection.y = 0;
+        fromDirection.Normalize();
+        toDirection.Normalize();
+
+        float angle = Vector3.SignedAngle(fromDirection, toDirection, Vector3.up);
+        float angular_velocity = -angle / Time.deltaTime;
+        return angular_velocity;
     }
 
-    void updateRobotPosition(Vector2 vel)
+    Velocity getRobotVel(Vector2 vel)
     {
-        if (vel.sqrMagnitude < 0.01f) return;
+        if (vel.sqrMagnitude < 0.01f) return new Velocity(0, 0);
 
         Vector3 targetDirection3D = new Vector3(vel.x, 0, vel.y);
         Quaternion targetRotation = Quaternion.LookRotation(targetDirection3D, Vector3.up);
 
-        if (areVectorsAlmostEqual(targetDirection3D, transform.forward, 0.01f))
+        float angular_velocity = 0f;
+        float linear_velocity = 0f;
+
+        if (areVectorsAlmostEqual(targetDirection3D, transform.forward, 0.3f))
         {
             Vector3 delta_vec = new Vector3(vel.x, 0, vel.y);
+            angular_velocity = 0f;
+            linear_velocity = 1f;
+#if NO_PHYSICS
             transform.position += delta_vec * Time.deltaTime;
-        } else
-        {
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 100f * Time.deltaTime);
-            float theta = transform.rotation.eulerAngles.y;
-            Vector2 direction = new Vector2(Mathf.Cos(theta), Mathf.Sin(theta));
-            Simulator.Instance.setAgentVelocity(sid, Vector2.zero); // maybe just set it in the direction?
+#endif
+
         }
+        else
+        {
+            Quaternion new_rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 100f * Time.deltaTime);
+            Quaternion from_rotation = transform.rotation;
+            angular_velocity = getAngularVelocity(from_rotation, new_rotation);
+            linear_velocity = 0.5f;
+
+#if NO_PHYSICS
+            Vector3 direction = transform.rotation * Vector3.forward;
+            transform.rotation = new_rotation;
+            transform.position += direction * Time.deltaTime;
+#endif
+
+        }
+        return new Velocity(linear_velocity, angular_velocity);
     }
 
     private T randomElement<T>(T[] arr)
@@ -118,10 +155,11 @@ public class GameAgent : MonoBehaviour
 
             PRINT("Mining");
             {
+                updateWheels(new Velocity(0, 0));
                 yield return new WaitForSeconds(miningDuration);
             }
             rover_state.hasLoad = true;
-            
+
             PRINT("Moving to processing");
             {
                 Vector2 goal_position = new Vector2(processingState.pos.x, processingState.pos.y);
@@ -130,9 +168,10 @@ public class GameAgent : MonoBehaviour
 
             PRINT("Processing");
             {
+                updateWheels(new Velocity(0, 0));
                 yield return new WaitForSeconds(processingDuration);
             }
-            
+
             rover_state.hasLoad = false;
         }
     }
@@ -164,8 +203,8 @@ public class GameAgent : MonoBehaviour
             Vector2 pos = Simulator.Instance.getAgentPosition(sid);
             Vector2 vel = Simulator.Instance.getAgentPrefVelocity(sid);
 
-            updateRobotPosition(actual_vel);
-            //wrongWay(actual_vel);
+            Velocity robot_vel = getRobotVel(actual_vel);
+            updateWheels(robot_vel);
 
             Vector2 real_pos = new Vector2(transform.position.x, transform.position.z);
             Simulator.Instance.setAgentPosition(sid, real_pos);
@@ -181,6 +220,39 @@ public class GameAgent : MonoBehaviour
                                                          new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)));
             yield return new WaitForSeconds(0.1f);
         }
+    }
+
+    private void updateWheels(Velocity current_velocity)
+    {
+#if NO_PHYSICS
+        return;
+#endif
+        (float wL, float wR) = wheelVelocities(current_velocity.linear_vel, current_velocity.angular_vel);
+
+        // Scale so we don't go too fast
+        float d = Math.Max(Mathf.Abs(wR / maxwheel_velocity), Mathf.Abs(wL / maxwheel_velocity));
+        d = d > 1f ? d : 1f;
+
+        // These target velocities are in deg/s
+        foreach (var wheel in leftWheels)
+        {
+            var drive = wheel.xDrive;
+            drive.targetVelocity = Mathf.Rad2Deg * wL / d;
+            wheel.xDrive = drive;
+        }
+        foreach (var wheel in rightWheels)
+        {
+            var drive = wheel.xDrive;
+            drive.targetVelocity = Mathf.Rad2Deg * wR / d;
+            wheel.xDrive = drive;
+        }
+    }
+
+
+    private (float wL, float wR) wheelVelocities(float v, float w)
+    {
+        float s = 2 / wheel_diameter;
+        return ((v - w * axle_width / 2) * s, (v + axle_width / 2 * w) * s);
     }
 
     void Update()

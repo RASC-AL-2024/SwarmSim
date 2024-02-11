@@ -735,6 +735,12 @@ MonoBehaviour:
   miningDuration: 10
   processingDuration: 10
   move_down: 0
+  leftWheels:
+  - {fileID: 1841802601659224153}
+  - {fileID: 5513243746420228259}
+  rightWheels:
+  - {fileID: 4706382072133945856}
+  - {fileID: 8757903452755457979}
 --- !u!1 &4103385863711732518
 GameObject:
   m_ObjectHideFlags: 0

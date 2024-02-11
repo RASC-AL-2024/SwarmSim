@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define NO_PHYSICS
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Lean;
@@ -37,7 +39,9 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
     
     void Start()
     {
-        Physics.autoSimulation = false;
+#if NO_PHYSICS
+         Physics.autoSimulation = false;
+#endif
         Simulator.Instance.setTimeStep(0.25f);
         Simulator.Instance.setAgentDefaults(10.0f, 10, 5.0f, 5.0f, 1.5f, 2.0f, new Vector2(0.0f, 0.0f));
 
@@ -60,9 +64,12 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
         {
             float angle = i * Mathf.PI * 2 / n_rovers;
             Vector3 position = randomPositionInCircle(center_position, radius, angle);
+#if NO_PHYSICS
             position.y = 5;
+#endif
             GameObject next_instance = CreateAgent(position);
-            next_instance.GetComponent<GameAgent>().processingStation = processingStation;
+            GameAgent ga = next_instance.GetComponent<GameAgent>();
+            ga.processingStation = processingStation;
             rovers[i] = next_instance;
         }
     }

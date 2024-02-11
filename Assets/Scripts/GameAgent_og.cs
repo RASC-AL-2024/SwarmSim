@@ -26,7 +26,6 @@ public class GameAgent_og : MonoBehaviour
             Vector2 vel = Simulator.Instance.getAgentPrefVelocity(sid);
             Vector2 actual_vel = Simulator.Instance.getAgentVelocity(sid);
 
-
             if (Math.Abs(vel.x) > 0.01f && Math.Abs(vel.y) > 0.01f)
                 transform.forward = new Vector3(vel.x, 0, vel.y).normalized;
 
