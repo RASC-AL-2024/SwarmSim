@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define USE_PLANNER
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Lean;
@@ -34,6 +36,20 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
         Simulator.Instance.setAgentDefaults(10.0f, 10, 5.0f, 5.0f, 1.5f, 2.0f, new Vector2(0.0f, 0.0f));
 
         rovers = RoverSpawner.spawnRovers(agentPrefab, spawn_radius, n_rovers);
+
+#if USE_PLANNER
+        StartCoroutine(sendStateToPlanner());
+#endif
+    }
+
+    private IEnumerator sendStateToPlanner()
+    {
+        while(true)
+        {
+            string output_string = serializeState();
+            udp_socket.SendData(output_string);
+            yield return new WaitForSeconds(planner_update_freq);
+        }
     }
 
     private string serializeState()

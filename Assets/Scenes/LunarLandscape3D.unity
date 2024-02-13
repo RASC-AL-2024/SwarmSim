@@ -343,6 +343,7 @@ GameObject:
   m_Component:
   - component: {fileID: 298185382}
   - component: {fileID: 298185383}
+  - component: {fileID: 298185384}
   m_Layer: 0
   m_Name: Main
   m_TagString: Untagged
@@ -381,7 +382,22 @@ MonoBehaviour:
   n_rovers: 1
   spawn_radius: 10
   time_scale: 5
-  udp_socket: {fileID: 0}
+  udp_socket: {fileID: 298185384}
+--- !u!114 &298185384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 298185380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aea6dd079464c52438b7bd3540d76945, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IP: 127.0.0.1
+  rxPort: 8000
+  txPort: 8001
 --- !u!1 &355061656
 GameObject:
   m_ObjectHideFlags: 0
