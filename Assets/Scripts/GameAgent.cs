@@ -1,6 +1,4 @@
-﻿#define NO_PHYSICS
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using RVO;
@@ -28,7 +26,6 @@ public class GameAgent : MonoBehaviour
     RoverState rover_state;
 
     /** Random number generator. */
-    private Random m_random = new Random();
     State processingState;
 
     private float wheel_diameter = 0.336f;
@@ -38,199 +35,32 @@ public class GameAgent : MonoBehaviour
     private float target_velocity = 0f;
     private float target_angular_velocity = 0f;
 
-    private Velocity current_velocity;
-
-    private State stateInBounds(Bounds bounds)
-    {
-        return new State(randomStateInBounds(bounds), 0);
-    }
-
-    Vector2 randomStateInBounds(Bounds bounds)
-    {
-        float xoffset = 1f;
-        float z_offset = 1f;
-
-        float x = UnityEngine.Random.Range(bounds.min.x + xoffset, bounds.max.x - xoffset);
-        float z = UnityEngine.Random.Range(bounds.min.z + z_offset, bounds.max.z - z_offset);
-        return new Vector2(x, z);
-    }
+    MotionPlanner motion_planner;
+    TargetPlanner target_planner;
 
     void Start()
     {
         rover_state = new RoverState(sid);
-
+        
         var t = processingStation.GetComponent<Transform>();
         processingState = new State(new Vector2(t.position.x, t.position.z), 0);
-        StartCoroutine(Background());
+
+        initTargetPlanner();
+
+        target_planner = new TargetPlanner(sid);
+        motion_planner = new MotionPlanner(sid, transform);
     }
 
-    Vector2 getCurrPosition()
+    private void initTargetPlanner()
     {
-        return new Vector2(transform.position.x, transform.position.z);
-    }
-
-    Vector2 getGoalVector(Vector2 goal_position)
-    {
-        return goal_position - getCurrPosition();
-    }
-
-    public bool areVectorsAlmostEqual(Vector3 a, Vector3 b, float tolerance)
-    {
-        Vector3 diff = (a - b);
-        return diff.magnitude < tolerance;
-    }
-
-    float getAngularVelocity(Quaternion from_rotation, Quaternion to_rotation)
-    {
-        Vector3 fromDirection = from_rotation * Vector3.forward;
-        Vector3 toDirection = to_rotation * Vector3.forward;
-
-        fromDirection.y = 0;
-        toDirection.y = 0;
-        fromDirection.Normalize();
-        toDirection.Normalize();
-
-        float angle = Vector3.SignedAngle(fromDirection, toDirection, Vector3.up);
-        float angular_velocity = -angle / Time.deltaTime;
-        return angular_velocity;
-    }
-
-    Velocity getRobotVel(Vector2 vel)
-    {
-        if (vel.sqrMagnitude < 0.01f) return new Velocity(0, 0);
-
-        Vector3 targetDirection3D = new Vector3(vel.x, 0, vel.y);
-        Quaternion targetRotation = Quaternion.LookRotation(targetDirection3D, Vector3.up);
-
-        float angular_velocity = 0f;
-        float linear_velocity = 0f;
-
-        if (areVectorsAlmostEqual(targetDirection3D, transform.forward, 0.3f))
-        {
-            Vector3 delta_vec = new Vector3(vel.x, 0, vel.y);
-            angular_velocity = 0f;
-            linear_velocity = 1f;
-#if NO_PHYSICS
-            transform.position += delta_vec * Time.deltaTime;
-#endif
-
-        }
-        else
-        {
-            Quaternion new_rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 100f * Time.deltaTime);
-            Quaternion from_rotation = transform.rotation;
-            angular_velocity = getAngularVelocity(from_rotation, new_rotation);
-            linear_velocity = 0.5f;
-
-#if NO_PHYSICS
-            Vector3 direction = transform.rotation * Vector3.forward;
-            transform.rotation = new_rotation;
-            transform.position += direction * Time.deltaTime;
-#endif
-
-        }
-        return new Velocity(linear_velocity, angular_velocity);
-    }
-
-    private T randomElement<T>(T[] arr)
-    {
-        return arr[UnityEngine.Random.Range(0, arr.Length)];
-    }
-
-    private void PRINT(string str)
-    {
-        Debug.Log("Rover " + sid + ": " + str);
-    }
-
-    IEnumerator Background()
-    {
-        while (true)
-        {
-            PRINT("Moving to mine");
-            {
-                var goal_state = stateInBounds(randomElement(resourceAreas));
-                Vector2 goal_position = new Vector2(goal_state.pos.x, goal_state.pos.y);
-                Simulator.Instance.setAgentIsMoving(true);
-                yield return moveRover(goal_position);
-            }
-
-            PRINT("Mining");
-            {
-                updateWheels(new Velocity(0, 0));
-                Simulator.Instance.setAgentIsMoving(false);
-                yield return new WaitForSeconds(miningDuration);
-            }
-            rover_state.hasLoad = true;
-
-            PRINT("Moving to processing");
-            {
-                Vector2 goal_position = new Vector2(processingState.pos.x, processingState.pos.y);
-                Simulator.Instance.setAgentIsMoving(true);
-                yield return moveRover(goal_position);
-            }
-
-            PRINT("Processing");
-            {
-                updateWheels(new Velocity(0, 0));
-                Simulator.Instance.setAgentIsMoving(false);
-                yield return new WaitForSeconds(processingDuration);
-            }
-
-            rover_state.hasLoad = false;
-        }
-    }
-
-    void OnDrawGizmos()
-    {
-        foreach (var bounds in resourceAreas)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireCube(bounds.center, bounds.size);
-        }
-    }
-
-    IEnumerator moveRover(Vector2 goal_position)
-    {
-        while (true)
-        {
-            Vector2 goalVector = getGoalVector(goal_position);
-            if (RVOMath.absSq(goalVector) > 1.0f)
-            {
-                goalVector = RVOMath.normalize(goalVector);
-            }
-            else
-            {
-                yield break;
-            }
-
-            Vector2 actual_vel = Simulator.Instance.getAgentVelocity(sid);
-            Vector2 pos = Simulator.Instance.getAgentPosition(sid);
-            Vector2 vel = Simulator.Instance.getAgentPrefVelocity(sid);
-
-            Velocity robot_vel = getRobotVel(actual_vel);
-            updateWheels(robot_vel);
-
-            Vector2 real_pos = new Vector2(transform.position.x, transform.position.z);
-            Simulator.Instance.setAgentPosition(sid, real_pos);
-
-            Simulator.Instance.setAgentPrefVelocity(sid, goalVector);
-
-            /* Perturb a little to avoid deadlocks due to perfect symmetry. */
-            float angle = (float)m_random.NextDouble() * 2f * (float)Math.PI;
-            float dist = (float)m_random.NextDouble() * 0.0001f;
-
-            Simulator.Instance.setAgentPrefVelocity(sid, Simulator.Instance.getAgentPrefVelocity(sid) +
-                                                         dist *
-                                                         new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)));
-            yield return new WaitForSeconds(0.1f);
-        }
+        TargetPlanner.resourceAreas = resourceAreas;
+        TargetPlanner.processingStation = processingStation.transform;
+        TargetPlanner.miningDuration = miningDuration;
+        TargetPlanner.processingDuration = processingDuration;
     }
 
     private void updateWheels(Velocity current_velocity)
     {
-#if NO_PHYSICS
-        return;
-#endif
         (float wL, float wR) = wheelVelocities(current_velocity.linear_vel, current_velocity.angular_vel);
 
         // Scale so we don't go too fast
@@ -252,15 +82,41 @@ public class GameAgent : MonoBehaviour
         }
     }
 
-
     private (float wL, float wR) wheelVelocities(float v, float w)
     {
         float s = 2 / wheel_diameter;
         return ((v - w * axle_width / 2) * s, (v + axle_width / 2 * w) * s);
     }
 
+    private Vector2 get2dPosition()
+    {
+        return new Vector2(transform.position.x, transform.position.z);
+    }
+
     void Update()
     {
+        target_planner.step(get2dPosition());
 
+        if (target_planner.getIsMoving())
+        {
+            Simulator.Instance.setAgentIsMoving(sid, true);
+            Vector2 goal_position = target_planner.getGoalPosition();
+            Velocity curr_vel = motion_planner.step(goal_position);
+            updateWheels(curr_vel);
+        } else
+        {
+            Velocity zero_velocity = new Velocity(0, 0);
+            updateWheels(zero_velocity);
+            Simulator.Instance.setAgentIsMoving(sid, false);
+        }
+    }
+
+    void OnDrawGizmos()
+    {
+        foreach (var bounds in resourceAreas)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireCube(bounds.center, bounds.size);
+        }
     }
 }

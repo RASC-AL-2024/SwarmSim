@@ -378,11 +378,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agentPrefab: {fileID: 3972119860936325249, guid: 3fbaa6e08ce229d4c93d23965d6bd3b8, type: 3}
-  processingStation: {fileID: 1311026423}
-  lander_position: {fileID: 1311026426}
-  n_rovers: 5
+  n_rovers: 3
+  spawn_radius: 10
   time_scale: 5
-  terrain: {fileID: 1328898109}
   udp_socket: {fileID: 0}
 --- !u!1 &355061656
 GameObject:

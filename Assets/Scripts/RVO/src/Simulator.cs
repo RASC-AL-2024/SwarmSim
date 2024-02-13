@@ -902,9 +902,9 @@ namespace RVO
             agents_[agentNo2indexDict_[agentNo]].velocity = velocity;
         }
 
-        public void setAgentIsMoving(int agentNo, bool isMoving)
+        public void setAgentIsMoving(int agentNo, bool is_moving)
         {
-            agents_[agentNo2indexDict_[agentNo]].isMoving = isMoving;
+            agents_[agentNo2indexDict_[agentNo]].isMoving_ = is_moving;
         }
 
         /**

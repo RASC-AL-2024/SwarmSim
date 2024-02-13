@@ -733,8 +733,7 @@ MonoBehaviour:
     m_Extent: {x: 5, y: 5, z: 5}
   processingStation: {fileID: 0}
   miningDuration: 10
-  processingDuration: 10
-  move_down: 0
+  processingDuration: 25
   leftWheels:
   - {fileID: 1841802601659224153}
   - {fileID: 5513243746420228259}

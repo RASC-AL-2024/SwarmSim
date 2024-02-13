@@ -56,7 +56,7 @@ namespace RVO
         internal float timeHorizon_ = 0.0f;
         internal float timeHorizonObst_ = 0.0f;
         internal bool needDelete_ = false;
-        internal bool isMoving = true;
+        internal bool isMoving_ = true;
 
         private Vector2 newVelocity;
 
@@ -77,11 +77,20 @@ namespace RVO
                 Simulator.Instance.kdTree_.computeAgentNeighbors(this, ref rangeSq);
             }
         }
-    
+
 
         /**
          * <summary>Computes the new velocity of this agent.</summary>
          */
+
+        void PRINT(string str)
+        {
+            if (id_ == 0)
+            {
+                Debug.Log(str);
+            }
+        }
+        
         internal void computeNewVelocity()
         {
             orcaLines_.Clear();
@@ -359,7 +368,6 @@ namespace RVO
 
                 Line line;
                 Vector2 u;
-
                 if (distSq > combinedRadiusSq)
                 {
                     /* No collision. */
@@ -498,7 +506,7 @@ namespace RVO
          */
         internal void update()
         {
-            if (!isMoving) return;
+            if (!isMoving_) return;
             velocity = newVelocity;
             position_ += velocity * Simulator.Instance.timeStep_;
         }
