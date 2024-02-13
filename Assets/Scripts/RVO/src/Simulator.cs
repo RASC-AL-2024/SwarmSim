@@ -902,6 +902,11 @@ namespace RVO
             agents_[agentNo2indexDict_[agentNo]].velocity = velocity;
         }
 
+        public void setAgentIsMoving(int agentNo, bool isMoving)
+        {
+            agents_[agentNo2indexDict_[agentNo]].isMoving = isMoving;
+        }
+
         /**
          * <summary>Sets the global time of the simulation.</summary>
          *

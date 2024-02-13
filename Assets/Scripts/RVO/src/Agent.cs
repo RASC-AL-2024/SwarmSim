@@ -56,6 +56,7 @@ namespace RVO
         internal float timeHorizon_ = 0.0f;
         internal float timeHorizonObst_ = 0.0f;
         internal bool needDelete_ = false;
+        internal bool isMoving = true;
 
         private Vector2 newVelocity;
 
@@ -497,6 +498,7 @@ namespace RVO
          */
         internal void update()
         {
+            if (!isMoving) return;
             velocity = newVelocity;
             position_ += velocity * Simulator.Instance.timeStep_;
         }

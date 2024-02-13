@@ -150,12 +150,14 @@ public class GameAgent : MonoBehaviour
             {
                 var goal_state = stateInBounds(randomElement(resourceAreas));
                 Vector2 goal_position = new Vector2(goal_state.pos.x, goal_state.pos.y);
+                Simulator.Instance.setAgentIsMoving(true);
                 yield return moveRover(goal_position);
             }
 
             PRINT("Mining");
             {
                 updateWheels(new Velocity(0, 0));
+                Simulator.Instance.setAgentIsMoving(false);
                 yield return new WaitForSeconds(miningDuration);
             }
             rover_state.hasLoad = true;
@@ -163,12 +165,14 @@ public class GameAgent : MonoBehaviour
             PRINT("Moving to processing");
             {
                 Vector2 goal_position = new Vector2(processingState.pos.x, processingState.pos.y);
+                Simulator.Instance.setAgentIsMoving(true);
                 yield return moveRover(goal_position);
             }
 
             PRINT("Processing");
             {
                 updateWheels(new Velocity(0, 0));
+                Simulator.Instance.setAgentIsMoving(false);
                 yield return new WaitForSeconds(processingDuration);
             }
 
