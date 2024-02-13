@@ -86,6 +86,7 @@ public class TargetPlanner
 
     public bool getIsMoving()
     {
+        if (state_list.head == null) return false;
         return state_list.head.Data.goal.goal_type == RGoalType.POSITION;
     }
 
@@ -107,6 +108,11 @@ public class TargetPlanner
         return new Vector2(x, z);
     }
 
+    public bool isValidState()
+    {
+        return state_list.head != null;
+    }
+
     public RStateType getCurrentState()
     {
         return state_list.head.Data.state;
@@ -122,7 +128,13 @@ public class TargetPlanner
         if(state_list.Step(position, Time.time))
         {
             state_list.AdvanceAndSet(Time.time);
-            PRINT(state_list.head.Data.state.ToString());
+            if(state_list.head == null)
+            {
+                PRINT("plan completed! returning to mining...");
+            } else
+            {
+                PRINT(state_list.head.Data.state.ToString());
+            }
         }
     }
 }

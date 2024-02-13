@@ -110,6 +110,7 @@ public class PlannerInterface
         foreach (var next_com in commands)
         {
             AbstractCommand next_command = parseCommand(next_com);
+            command_list.Add(next_command);
         }
 
         return command_list;

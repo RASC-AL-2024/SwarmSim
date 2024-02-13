@@ -132,7 +132,8 @@ public class GameAgent : MonoBehaviour
             Simulator.Instance.setAgentIsMoving(sid, false);
         }
 
-        updateRoverState(target_planner.getCurrentState());
+        if(target_planner.isValidState())
+            updateRoverState(target_planner.getCurrentState());
     }
 
     void OnDrawGizmos()

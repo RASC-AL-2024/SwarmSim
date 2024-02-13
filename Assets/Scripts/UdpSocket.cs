@@ -51,7 +51,7 @@ public class UdpSocket : MonoBehaviour
             }
             catch (Exception err)
             {
-                print(err.ToString());
+                // print(err.ToString());
             }
         }
     }

@@ -21,6 +21,7 @@ public class CircularLinkedList
     public CircularLinkedList()
     {
         head = null;
+        should_repeat = true;
     }
 
     public void Add(RoverNode data)
@@ -30,7 +31,13 @@ public class CircularLinkedList
         if (head == null)
         {
             head = newNode;
-            head.Next = head;
+            if(should_repeat)
+            {
+                head.Next = head;
+            } else
+            {
+                head.Next = null;
+            }
         }
         else
         {
@@ -60,7 +67,10 @@ public class CircularLinkedList
     public void AdvanceAndSet(float curr_time)
     {
         head = head.Next;
-        head.Data.timestamp = curr_time;
-        head.Data.goal.Generate();
+        if(head != null)
+        {
+            head.Data.timestamp = curr_time;
+            head.Data.goal.Generate();
+        }
     }
 }
