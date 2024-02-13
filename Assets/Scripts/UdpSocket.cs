@@ -47,7 +47,7 @@ public class UdpSocket : MonoBehaviour
                 IPEndPoint anyIP = new IPEndPoint(IPAddress.Any, 0);
                 byte[] data = client.Receive(ref anyIP);
                 string text = Encoding.UTF8.GetString(data);
-                ProcessInput(text);
+                NotifySubs(text);
             }
             catch (Exception err)
             {
@@ -56,9 +56,16 @@ public class UdpSocket : MonoBehaviour
         }
     }
 
-    private void ProcessInput(string input)
-    {
+    public delegate void ActionTriggeredEventHandler(string data);
 
+    public event ActionTriggeredEventHandler OnPlannerInput;
+
+    public void NotifySubs(string data)
+    {
+        if (OnPlannerInput != null)
+        {
+            OnPlannerInput(data);
+        }
     }
 
     void OnDisable()

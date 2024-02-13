@@ -23,6 +23,8 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
     [SerializeField]
     float time_scale = 10f;
 
+    float planner_update_freq = 0.5f;
+
     [SerializeField]
     UdpSocket udp_socket;
 
@@ -38,6 +40,7 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
         rovers = RoverSpawner.spawnRovers(agentPrefab, spawn_radius, n_rovers);
 
 #if USE_PLANNER
+        udp_socket.OnPlannerInput += ProcessPlannerInput;
         StartCoroutine(sendStateToPlanner());
 #endif
     }
@@ -50,6 +53,11 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
             udp_socket.SendData(output_string);
             yield return new WaitForSeconds(planner_update_freq);
         }
+    }
+
+    private void ProcessPlannerInput(string planner_input)
+    {
+
     }
 
     private string serializeState()
