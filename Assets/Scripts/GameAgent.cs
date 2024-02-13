@@ -5,6 +5,8 @@ using RVO;
 using UnityEngine;
 using Random = System.Random;
 
+using RStateType = RoverNode.State;
+
 public class GameAgent : MonoBehaviour
 {
     [HideInInspector] public int sid = -1;
@@ -43,7 +45,7 @@ public class GameAgent : MonoBehaviour
         rover_state = new RoverState(sid);
         
         var t = processingStation.GetComponent<Transform>();
-        processingState = new State(new Vector2(t.position.x, t.position.z), 0);
+        processingState = new State(new Vector2(t.position.x, t.position.z), Quaternion.identity);
 
         initTargetPlanner();
 
@@ -93,6 +95,25 @@ public class GameAgent : MonoBehaviour
         return new Vector2(transform.position.x, transform.position.z);
     }
 
+    State getCurrentState()
+    {
+        Vector2 position = new Vector2(transform.position.x, transform.position.z);
+        Quaternion rot = transform.rotation;
+        return new State(position, rot);
+    }
+
+    void updateRoverState(RStateType state_type)
+    {
+        bool has_load = state_type == RStateType.MOVING_TO_PROCESSING;
+        rover_state.updateHasLoad(has_load);
+
+        bool is_moving = target_planner.getIsMoving();
+        rover_state.updateBattery(is_moving);
+
+        var curr_state = getCurrentState();
+        rover_state.updateState(curr_state);
+    }
+
     void Update()
     {
         target_planner.step(get2dPosition());
@@ -107,8 +128,11 @@ public class GameAgent : MonoBehaviour
         {
             Velocity zero_velocity = new Velocity(0, 0);
             updateWheels(zero_velocity);
+            Simulator.Instance.setAgentVelocity(sid, Vector2.zero);
             Simulator.Instance.setAgentIsMoving(sid, false);
         }
+
+        updateRoverState(target_planner.getCurrentState());
     }
 
     void OnDrawGizmos()

@@ -1,7 +1,4 @@
-﻿//#define NO_PHYSICS
-#undef NO_PHYSICS
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using Lean;
@@ -27,21 +24,14 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
     [SerializeField]
     UdpSocket udp_socket;
 
-
     GameObject[] rovers;
     
     void Start()
     {
-#if NO_PHYSICS
-         Physics.autoSimulation = false;
-#endif
         Time.timeScale = time_scale;
 
         Simulator.Instance.setTimeStep(0.25f);
         Simulator.Instance.setAgentDefaults(10.0f, 10, 5.0f, 5.0f, 1.5f, 2.0f, new Vector2(0.0f, 0.0f));
-
-        // add in awake
-        // Simulator.Instance.processObstacles();
 
         rovers = RoverSpawner.spawnRovers(agentPrefab, spawn_radius, n_rovers);
     }
@@ -52,6 +42,7 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
         foreach (GameObject rover in rovers)
         {
             RoverState rover_state = rover.GetComponent<GameAgent>().rover_state;
+            rover_state.serializeObject();
             string state_string = JsonConvert.SerializeObject(rover_state);
             output_string += state_string + "\n";
         }

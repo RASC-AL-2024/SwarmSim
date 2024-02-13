@@ -47,10 +47,9 @@ public class RoverController : MonoBehaviour
     {
         float x = center_t.position.x;
         float y = center_t.position.z;
-        float theta = Mathf.Deg2Rad * center_t.localEulerAngles.y; // we don't really need theta anymore
+        Quaternion rot = center_t.rotation;
+        State current_state = new State(new Vector2(x, y), rot);
 
-        State current_state = new State(new Vector2(x, y), theta);
-        current_state.rot = center_t.rotation;
         return current_state;
     }
 

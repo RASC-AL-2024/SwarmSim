@@ -93,6 +93,11 @@ public class TargetPlanner
         return TargetPlanner.processingDuration;
     }
 
+    public RStateType getCurrentState()
+    {
+        return state_list.head.Data.state;
+    }
+
     public void step(Vector2 position)
     {
         if(state_list.Step(position, Time.time))
