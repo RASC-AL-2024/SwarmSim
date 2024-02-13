@@ -15,8 +15,6 @@ public class RoverController : MonoBehaviour
 
     private Transform center_t;
 
-    private DifferentialDrive diff_drive;
-
     private State start_state;
     private State goal_state;
     private State current_state;

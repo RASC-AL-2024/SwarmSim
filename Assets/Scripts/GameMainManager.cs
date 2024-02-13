@@ -51,7 +51,7 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
         string output_string = "";
         foreach (GameObject rover in rovers)
         {
-            RoverState rover_state = rover.GetComponent<MineController>().rover_state;
+            RoverState rover_state = rover.GetComponent<GameAgent>().rover_state;
             string state_string = JsonConvert.SerializeObject(rover_state);
             output_string += state_string + "\n";
         }

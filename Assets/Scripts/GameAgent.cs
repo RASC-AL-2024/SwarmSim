@@ -23,7 +23,7 @@ public class GameAgent : MonoBehaviour
     [SerializeField]
     public ArticulationBody[] rightWheels;
 
-    RoverState rover_state;
+    public RoverState rover_state;
 
     /** Random number generator. */
     State processingState;

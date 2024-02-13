@@ -22,7 +22,6 @@ public class TargetPlanner
     public TargetPlanner(int t_sid)
     {
         sid = t_sid;
-        Debug.Log("created new target planner: " + sid);
         state_list = new CircularLinkedList();
 
         RoverNode moving_to_mine = new RoverNode(RStateType.MOVING_TO_MINE, new RGoal(RGoalType.POSITION));
