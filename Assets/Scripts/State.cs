@@ -42,6 +42,7 @@ public class State
     public State()
     {
         pos = Vector2.zero;
+        rot = Quaternion.identity;
     }
 
     public State(Vector2 pos_, Quaternion rot_)

@@ -6,7 +6,7 @@ using System;
 public class RoverNode
 {
     public enum GoalType { POSITION, DURATION }
-    public enum State { MOVING_TO_MINE, MINING, MOVING_TO_PROCESSING, PROCESSING };
+    public enum State { MOVING_TO_MINE, MINING, MOVING_TO_PROCESSING, PROCESSING, OTHER };
 
     public State state;
     public Goal goal;

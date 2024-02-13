@@ -24,17 +24,47 @@ public class TargetPlanner
         sid = t_sid;
         state_list = new CircularLinkedList();
 
+    }
+
+    public void resetPlan()
+    {
+        state_list = new CircularLinkedList();
+    }
+
+    public void setRepeatPlan(bool should_repeat)
+    {
+        state_list.should_repeat = should_repeat;
+    }
+
+    public void addPosition(Vector2 position)
+    {
+        RoverNode waypoint = new RoverNode(RStateType.OTHER, new RGoal(RGoalType.POSITION));
+        waypoint.goal.pos_generator = () => position;
+        state_list.Add(waypoint);
+    }
+
+    public void addDuration(float time)
+    {
+        RoverNode waiting = new RoverNode(RStateType.OTHER, new RGoal(RGoalType.DURATION));
+        waiting.goal.time_generator = () => time;
+        state_list.Add(waiting);
+    }
+
+    public void generateMiningPlan()
+    {
+        resetPlan();
+        setRepeatPlan(true);
         RoverNode moving_to_mine = new RoverNode(RStateType.MOVING_TO_MINE, new RGoal(RGoalType.POSITION));
         moving_to_mine.goal.pos_generator = generateMiningPosition;
 
         RoverNode mining = new RoverNode(RStateType.MINING, new RGoal(RGoalType.DURATION));
-        mining.goal.time_generator = generateMiningDuration;
+        mining.goal.time_generator = () => TargetPlanner.miningDuration;
 
         RoverNode moving_to_processing = new RoverNode(RStateType.MOVING_TO_PROCESSING, new RGoal(RGoalType.POSITION));
-        moving_to_processing.goal.pos_generator = generateProcessingPosition;
+        moving_to_processing.goal.pos_generator = () => new Vector2(TargetPlanner.processingStation.position.x, TargetPlanner.processingStation.position.z);
 
         RoverNode processing = new RoverNode(RStateType.PROCESSING, new RGoal(RGoalType.DURATION));
-        processing.goal.time_generator = generateProcessingDuration;
+        processing.goal.time_generator = () => TargetPlanner.processingDuration;
 
         state_list.Add(moving_to_mine);
         state_list.Add(mining);
@@ -77,22 +107,6 @@ public class TargetPlanner
         return new Vector2(x, z);
     }
 
-    Vector2 generateProcessingPosition()
-    {
-        Vector3 processing_position = TargetPlanner.processingStation.position;
-        return new Vector2(processing_position.x, processing_position.z);
-    }
-
-    float generateMiningDuration()
-    {
-        return TargetPlanner.miningDuration;
-    }
-
-    float generateProcessingDuration()
-    {
-        return TargetPlanner.processingDuration;
-    }
-
     public RStateType getCurrentState()
     {
         return state_list.head.Data.state;
@@ -100,6 +114,11 @@ public class TargetPlanner
 
     public void step(Vector2 position)
     {
+        if(state_list.head == null)
+        {
+            generateMiningPlan();
+        }
+
         if(state_list.Step(position, Time.time))
         {
             state_list.AdvanceAndSet(Time.time);

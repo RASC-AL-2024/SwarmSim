@@ -37,8 +37,8 @@ public class GameAgent : MonoBehaviour
     private float target_velocity = 0f;
     private float target_angular_velocity = 0f;
 
-    MotionPlanner motion_planner;
-    TargetPlanner target_planner;
+    public MotionPlanner motion_planner;
+    public TargetPlanner target_planner;
 
     void Start()
     {

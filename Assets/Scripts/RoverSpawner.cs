@@ -42,9 +42,9 @@ public class RoverSpawner
         return terrain;
     }
 
-    public static GameObject[] spawnRovers(GameObject agentPrefab, float spawn_radius, int n_rovers)
+    public static GameAgent[] spawnRovers(GameObject agentPrefab, float spawn_radius, int n_rovers)
     {
-        GameObject[] rovers = new GameObject[n_rovers];
+        GameAgent[] rovers = new GameAgent[n_rovers];
         GameObject processing_station = getProcessingStation();
         Terrain terrain = getTerrain();
         Vector3 spawn_center = processing_station.transform.position;
@@ -55,7 +55,7 @@ public class RoverSpawner
             GameObject next_instance = CreateAgent(agentPrefab, position);
             GameAgent ga = next_instance.GetComponent<GameAgent>();
             ga.processingStation = processing_station;
-            rovers[i] = next_instance;
+            rovers[i] = ga;
         }
         return rovers;
     }

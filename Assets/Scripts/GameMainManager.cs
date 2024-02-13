@@ -23,13 +23,13 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
     [SerializeField]
     float time_scale = 10f;
 
-    float planner_update_freq = 0.5f;
+    float planner_update_freq = 1f;
 
     [SerializeField]
     UdpSocket udp_socket;
 
-    GameObject[] rovers;
-    
+    GameAgent[] rovers;
+
     void Start()
     {
         Time.timeScale = time_scale;
@@ -45,8 +45,9 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
 #endif
     }
 
-    private IEnumerator sendStateToPlanner()
+    IEnumerator sendStateToPlanner()
     {
+        yield return new WaitForSeconds(1f);
         while(true)
         {
             string output_string = serializeState();
@@ -57,15 +58,15 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
 
     private void ProcessPlannerInput(string planner_input)
     {
-
+        PlannerInterface.applyInputs(rovers, planner_input);
     }
 
     private string serializeState()
     {
         string output_string = "";
-        foreach (GameObject rover in rovers)
+        foreach (GameAgent agent in rovers)
         {
-            RoverState rover_state = rover.GetComponent<GameAgent>().rover_state;
+            RoverState rover_state = agent.rover_state;
             rover_state.serializeObject();
             string state_string = JsonConvert.SerializeObject(rover_state);
             output_string += state_string + "\n";

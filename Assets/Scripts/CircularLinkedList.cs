@@ -16,6 +16,7 @@ public class CircularLinkedList
     }
 
     public Node head;
+    public bool should_repeat;
 
     public CircularLinkedList()
     {
@@ -39,7 +40,14 @@ public class CircularLinkedList
                 current = current.Next;
             }
             current.Next = newNode;
-            newNode.Next = head;
+
+            if(should_repeat)
+            {
+                newNode.Next = head;
+            } else
+            {
+                newNode.Next = null;
+            }
         }
     }
 
