@@ -27,7 +27,6 @@ public class GameAgent : MonoBehaviour
 
     public RoverState rover_state;
 
-    /** Random number generator. */
     State processingState;
 
     private float wheel_diameter = 0.336f;
@@ -37,6 +36,19 @@ public class GameAgent : MonoBehaviour
     private float target_velocity = 0f;
     private float target_angular_velocity = 0f;
 
+    public float lowBattery = 20f;
+
+    private static Dictionary<RStateType, RoverState.Activity> activityMap =
+      new Dictionary<RStateType, RoverState.Activity>{
+        {RStateType.MOVING_TO_MINE, RoverState.Activity.MOVING},
+        {RStateType.MOVING_TO_PROCESSING, RoverState.Activity.MOVING},
+        {RStateType.MOVING_TO_CHARGING, RoverState.Activity.MOVING},
+        {RStateType.MINING, RoverState.Activity.MINING},
+        {RStateType.CHARGING, RoverState.Activity.CHARGING},
+        {RStateType.PROCESSING, RoverState.Activity.NEUTRAL},
+        {RStateType.OTHER, RoverState.Activity.NEUTRAL}
+      };
+
     public MotionPlanner motion_planner;
     public TargetPlanner target_planner;
 
@@ -44,9 +56,6 @@ public class GameAgent : MonoBehaviour
     {
         rover_state = new RoverState(sid);
         
-        var t = processingStation.GetComponent<Transform>();
-        processingState = new State(new Vector2(t.position.x, t.position.z), Quaternion.identity);
-
         initTargetPlanner();
 
         target_planner = new TargetPlanner(sid);
@@ -107,15 +116,18 @@ public class GameAgent : MonoBehaviour
         bool has_load = state_type == RStateType.MOVING_TO_PROCESSING;
         rover_state.updateHasLoad(has_load);
 
-        bool is_moving = target_planner.getIsMoving();
-        rover_state.updateBattery(is_moving);
-
+        rover_state.updateBattery(activityMap[state_type], Time.deltaTime);
+        
         var curr_state = getCurrentState();
         rover_state.updateState(curr_state);
     }
 
     void Update()
     {
+        if (rover_state.battery.chargeAmount <= lowBattery && !target_planner.isChargePlan()) {
+          target_planner.generateChargingPlan(rover_state.battery.chargeDuration());
+        }
+
         target_planner.step(get2dPosition());
 
         if (target_planner.getIsMoving())
