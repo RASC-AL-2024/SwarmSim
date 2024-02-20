@@ -75,6 +75,23 @@ public class TargetPlanner
         state_list.head.Data.goal.Generate();
     }
 
+    public void generateChargingPlan(float chargingDuration) {
+        resetPlan();
+        setRepeatPlan(false);
+
+        RoverNode moving_to_charging = new RoverNode(RStateType.MOVING_TO_CHARGING, new RGoal(RGoalType.POSITION));
+        moving_to_charging.goal.pos_generator = () => new Vector2(TargetPlanner.processingStation.position.x, TargetPlanner.processingStation.position.z);
+
+        RoverNode charging = new RoverNode(RStateType.CHARGING, new RGoal(RGoalType.DURATION));
+        charging.goal.time_generator = () => chargingDuration;
+
+        state_list.Add(moving_to_charging);
+        state_list.Add(charging);
+        
+        state_list.head.Data.timestamp = Time.time;
+        state_list.head.Data.goal.Generate();
+    }
+
     public Vector2 getGoalPosition()
     {
         if(state_list.head.Data.goal.goal_type == RGoalType.POSITION)
@@ -88,6 +105,12 @@ public class TargetPlanner
     {
         if (state_list.head == null) return false;
         return state_list.head.Data.goal.goal_type == RGoalType.POSITION;
+    }
+
+    public bool isChargePlan() {
+      if (state_list.head == null) return false;
+      return state_list.head.Data.state == RStateType.MOVING_TO_CHARGING
+        || state_list.head.Data.state == RStateType.CHARGING;
     }
 
     private void PRINT(string str)

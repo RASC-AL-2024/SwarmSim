@@ -3,41 +3,41 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-using RStateType = RoverNode.State;
-
 [Serializable]
 public class RoverState
 {
+    public enum Activity { MINING, MOVING, CHARGING, NEUTRAL };
+    float neutralDischargeRate = 0.1f;
+    float miningDischargeRate = 0.1f;
+    float movingDischargeRate = 0.1f;
+    float movingLoadScale = 2.0f;
+
     [Serializable]
     public class Battery
     {
         public float chargeAmount;
-        float chargeTime;
-        float chargeDuration;
         float maxCapacity;
-        float dischargeRate;
+        float chargeRate;
 
-        public Battery(float chargeDuration_, float maxCapacity_, float dischargeRate_)
+        public Battery(float maxCapacity_, float chargeRate_)
         {
-            chargeTime = Time.time;
-            chargeDuration = chargeDuration_;
             chargeAmount = maxCapacity_;
             maxCapacity = maxCapacity_;
-            dischargeRate = dischargeRate_;
+            chargeRate = chargeRate_;
         }
 
-        public void charge()
+        public void charge(float dt)
         {
-            chargeAmount = maxCapacity;
+            chargeAmount = Mathf.Min(maxCapacity, chargeAmount + chargeRate * dt);
         }
 
-        public void discharge()
+        public float chargeDuration() {
+          return maxCapacity / chargeRate;
+        }
+
+        public void discharge(float rate, float dt)
         {
-            chargeAmount -= dischargeRate;
-            if(chargeAmount < 0)
-            {
-                chargeAmount = 0;
-            }
+            chargeAmount = Mathf.Max(chargeAmount - rate * dt, 0f);
         }
 
         public bool empty()
@@ -53,7 +53,7 @@ public class RoverState
 
     public RoverState(int t_id)
     {
-        battery = new Battery(180f, 1000f, 1f);
+        battery = new Battery(100f, 1f);
         id = t_id;
         hasLoad = false;
         state = new State();
@@ -74,12 +74,22 @@ public class RoverState
         hasLoad = has_load;
     }
 
-    public void updateBattery(bool is_moving)
+    public void updateBattery(Activity activity, float dt)
     {
-        if (is_moving)
-        {
-            battery.discharge();
-        }
+      switch (activity) {
+        case Activity.CHARGING:
+          battery.charge(dt);
+          return;
+        case Activity.MINING:
+          battery.discharge(neutralDischargeRate + miningDischargeRate, dt);
+          return;
+        case Activity.MOVING:
+          float scale = hasLoad ? movingLoadScale : 1.0f;
+          battery.discharge(neutralDischargeRate + movingDischargeRate * scale, dt);
+          return;
+        case Activity.NEUTRAL:
+          battery.discharge(neutralDischargeRate, dt);
+          return;
+      }
     }
-
 }

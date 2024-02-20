@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RVO;
-using Lean;
 using UnityEngine.Assertions;
 using UnityEngine.Assertions.Comparers;
 
@@ -13,7 +12,7 @@ public class RoverSpawner
         int sid = Simulator.Instance.addAgent(new Vector2(agent_pos.x, agent_pos.z));
         if (sid >= 0)
         {
-            GameObject go = LeanPool.Spawn(agentPrefab, agent_pos, Quaternion.identity);
+            GameObject go = Object.Instantiate(agentPrefab, agent_pos, Quaternion.identity);
             GameAgent ga = go.GetComponent<GameAgent>();
             Assert.IsNotNull(ga);
             ga.sid = sid;
