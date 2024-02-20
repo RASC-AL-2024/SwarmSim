@@ -42,7 +42,7 @@ public class CircularLinkedList
         else
         {
             Node current = head;
-            while (current.Next != head)
+            while (current.Next != head && current.Next != null)
             {
                 current = current.Next;
             }
