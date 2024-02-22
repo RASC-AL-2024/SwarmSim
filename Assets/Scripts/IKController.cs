@@ -1,10 +1,22 @@
 using UnityEngine;
 
+// articulation body
+// - need to be able to predict given parameterization
+// - need to be able to manipulate
+// - inverse kinematics, given path through
+// - revolute or fixed joints
+// - need anchor points for all modules
+// - revolute goes around parent anchor x axis
+
+// x axis should point out from body
+
 // ReSharper disable once InconsistentNaming
 public class IKController : MonoBehaviour {
     [SerializeField] private Transform _targetTransform;
     public ArmJoint[] Joints;
     public float[] Angles;
+
+    [SerializeField] public GameObject sphere;
 
     private const float SamplingDistance = 0.5f;
     private const float LearningRate = 4f; //8
@@ -83,6 +95,9 @@ public class IKController : MonoBehaviour {
             // Update : Solution -= LearningRate * Gradient
             float gradient = PartialGradient(target, angles, i);
             angles[i] -= LearningRate * gradient;
+
+            Debug.LogFormat("{0}, {1}", ForwardKinematics(angles), target);
+            sphere.transform.position = ForwardKinematics(angles);
 
             // Early termination
             if (DistanceFromTarget(target, angles) < DistanceThreshold)
