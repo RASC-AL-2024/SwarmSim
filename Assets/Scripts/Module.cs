@@ -48,7 +48,7 @@ public class Module : MonoBehaviour {
     
     var p = childConnection.anchor.localPosition;
     // this angle calculation is right
-    var r = Quaternion.Euler(0, 180, connection.angle + childConnection.angle) * childConnection.anchor.localRotation;
+    var r = childConnection.anchor.localRotation * Quaternion.Euler(0, 180, connection.angle + childConnection.angle);
     (var position, var rotation) = compose((connection.anchor.localPosition, connection.anchor.localRotation), invert(p, r));
 
     // position might not be right but not sure
