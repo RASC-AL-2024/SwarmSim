@@ -51,9 +51,8 @@ public class Module : MonoBehaviour {
     var r = Quaternion.Euler(0, 180, connection.angle + childConnection.angle) * childConnection.anchor.localRotation;
     (var position, var rotation) = compose((connection.anchor.localPosition, connection.anchor.localRotation), invert(p, r));
 
-    // Honestly not sure why this position needs to be inverted lmao
-    // todo also transform the position, it would be new Vector3(-x, y, -z) if position was rotated
-    connection.other.transform.localPosition = position; // new Vector3(-position.x, position.y, -position.z);
+    // position might not be right but not sure
+    connection.other.transform.localPosition = rotation * position;
     connection.other.transform.localRotation = rotation;
 
     var childBody = connection.other.GetComponent<ArticulationBody>();

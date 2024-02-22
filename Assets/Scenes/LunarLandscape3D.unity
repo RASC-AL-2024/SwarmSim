@@ -1133,6 +1133,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ModularArm
       objectReference: {fileID: 0}
+    - target: {fileID: 3423639761639602351, guid: 24db9ca9488eb4d6c9ce603942a12b50, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.000000009683135
+      objectReference: {fileID: 0}
     - target: {fileID: 3437080591411476720, guid: 24db9ca9488eb4d6c9ce603942a12b50, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.13810587
@@ -1172,6 +1176,22 @@ PrefabInstance:
     - target: {fileID: 3437080591411476720, guid: 24db9ca9488eb4d6c9ce603942a12b50, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902967169357075856, guid: 24db9ca9488eb4d6c9ce603942a12b50, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -14.702007
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902967169357075856, guid: 24db9ca9488eb4d6c9ce603942a12b50, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 39.635994
+      objectReference: {fileID: 0}
+    - target: {fileID: 6443431861057995489, guid: 24db9ca9488eb4d6c9ce603942a12b50, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 14.702014
+      objectReference: {fileID: 0}
+    - target: {fileID: 6443431861057995489, guid: 24db9ca9488eb4d6c9ce603942a12b50, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -39.637993
       objectReference: {fileID: 0}
     - target: {fileID: 7237741092931552427, guid: 24db9ca9488eb4d6c9ce603942a12b50, type: 3}
       propertyPath: m_UseGravity
