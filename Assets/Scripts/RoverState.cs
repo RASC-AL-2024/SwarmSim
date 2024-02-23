@@ -8,7 +8,7 @@ public class RoverState
 {
     public enum Activity { MINING, MOVING, CHARGING, NEUTRAL };
     float neutralDischargeRate = 0.1f;
-    float miningDischargeRate = 0.1f;
+    float miningDischargeRate = 0.0f;
     float movingDischargeRate = 0.1f;
     float movingLoadScale = 2.0f;
 

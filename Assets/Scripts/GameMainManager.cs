@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 public class GameMainManager : SingletonBehaviour<GameMainManager>
 {
     public GameObject agentPrefab;
+    public Miner[] miners;
 
     [SerializeField]
     int n_rovers = 1;
@@ -37,6 +38,10 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
         Simulator.Instance.setAgentDefaults(10.0f, 10, 5.0f, 5.0f, 1.5f, 2.0f, new Vector2(0.0f, 0.0f));
 
         rovers = RoverSpawner.spawnRovers(agentPrefab, spawn_radius, n_rovers);
+        // jank
+        foreach (var rover in rovers)
+          foreach (var miner in miners)
+            rover.miners.Add(miner);
 
 #if USE_PLANNER
         udp_socket.OnPlannerInput += ProcessPlannerInput;

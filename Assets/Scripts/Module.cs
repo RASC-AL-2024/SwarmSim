@@ -68,7 +68,6 @@ public class Module : MonoBehaviour {
 
     // position might not be right but not sure
     connection.other.transform.localPosition = rotation * position;
-    Debug.Log(rotation);
     connection.other.transform.localRotation = rotation;
 
     var childBody = connection.other.GetComponent<ArticulationBody>();

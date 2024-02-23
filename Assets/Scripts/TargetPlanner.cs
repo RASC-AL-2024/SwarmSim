@@ -11,7 +11,7 @@ using RGoalType = RoverNode.GoalType;
 public class TargetPlanner
 {
 
-    public static Bounds[] resourceAreas;
+    public static List<Miner> miners;
     public static Transform processingStation;
     public static float miningDuration;
     public static float processingDuration;
@@ -120,15 +120,8 @@ public class TargetPlanner
 
     Vector2 generateMiningPosition()
     {
-        var bounds = TargetPlanner.resourceAreas[UnityEngine.Random.Range(0, TargetPlanner.resourceAreas.Length)];
-
-        float xoffset = 1f;
-        float z_offset = 1f;
-
-        float x = UnityEngine.Random.Range(bounds.min.x + xoffset, bounds.max.x - xoffset);
-        float z = UnityEngine.Random.Range(bounds.min.z + z_offset, bounds.max.z - z_offset);
-        
-        return new Vector2(x, z);
+        var miner = TargetPlanner.miners[UnityEngine.Random.Range(0, TargetPlanner.miners.Count)];
+        return new Vector2(miner.minePosition.position.x, miner.minePosition.position.z);
     }
 
     public bool isValidState()
@@ -145,19 +138,17 @@ public class TargetPlanner
     {
         if(state_list.head == null)
         {
+            PRINT("plan completed! returning to mining...");
             generateMiningPlan();
         }
 
         if(state_list.Step(position, Time.time))
         {
             state_list.AdvanceAndSet(Time.time);
-            if(state_list.head == null)
-            {
-                PRINT("plan completed! returning to mining...");
-            } else
-            {
-                PRINT(state_list.head.Data.state.ToString());
+            if(state_list.head == null) {
+              return;
             }
+            PRINT(state_list.head.Data.state.ToString());
         }
     }
 }
