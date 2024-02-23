@@ -2,12 +2,15 @@ using UnityEngine;
 using System.Collections.Generic;
 
 public class InverseKinematics : MonoBehaviour {
+  // What transform we are trying to hit
   [SerializeField]
   public Transform target;
 
-  [SerializeField]
-  public Transform actual;
-
+  // The chain of modules that we will use to hit
+  // the transform. The first module should be the root,
+  // the last module is what we use to try and hit the target.
+  // MAKE SURE THAT THE CENTER OF MASS ON THE LAST ELEMENT IS RIGHT!
+  // The jacobian gives linear position derivatives for the center of mass.
   [SerializeField]
   public Module[] chain;
 
@@ -40,22 +43,30 @@ public class InverseKinematics : MonoBehaviour {
   }
 
   void Update() {
+    // https://nvidia-omniverse.github.io/PhysX/physx/5.3.1/docs/Articulations.html?highlight=cache%20indexing#cache-indexing
+
+    // Jacobian includes linear and rotational components
     var jacobian = new ArticulationJacobian();
     bodies[^1].GetDenseJacobian(ref jacobian);
-    // if base is immovable, jacobian is (3 * 6)x3
-    // otherwise, jacobian is (4 * 6)x(3 + 6)
-    var currentPosition = actual.position;
 
+    // The center of mass of the last element in the chain.
+    // e.g. the scooper.
+    var currentPosition = bodies[^1].worldCenterOfMass;
     var error = target.position - currentPosition;
-    Debug.Log(error);
+    if (error.magnitude < 0.1) {
+      return;
+    }
 
-    // want (error - J(x) dX ) -> 0
-
-    // Enumerate everything but root
+    // Shitty L2 gradient descent using the jacobian.
+    // I don't know if this is actually convex lol
+    // Each body except the root has a revolute joint we 
+    // can modify. Iterate them, get derivative of linear position
+    // wrt to joint angle for all xyz, then optimize.
+    //
+    // TODO: Maybe make this one shot calculation then lerp to animate.
     for (int i = 1; i < bodies.Count; ++i) {
       float gradient = 0f;
       for (int j = 0; j < 3; ++j) {
-        // l2 loss (don't think this is actually convex lol)
         gradient += error[j] * jacobian[jacobian.rows - 6 + j, i - 1];
       }
 

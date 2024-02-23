@@ -3,12 +3,22 @@ using UnityEditor;
 using System;
 using UnityEngine.Assertions;
 
+// Usage:
+// Make a prefab for each module. Modules are connected by "Connections"
+// In the prefab, define some child anchor objects that are
+// positioned at points on the module where other modules should be able to attach.
+// +x should always face away from the surface (i.e. towards other objects)
+// It is also assumed that modules have articulation body components.
+// To build a larger structure in the editor, define a root module
+// and then progressively add children. You will need to specify in the editor
+// the "other" field for each of the connections you add for both the parents and the children.
+// If you hit the "Update child positions" button stuff should snap in place.
+// In the future this can be done dynamically.
+
 [System.Serializable]
 public class Connection {
     public Transform anchor;
     public Module other; // can be null
-    public bool isRevolute;
-    public float angle;
 }
 
 public class Module : MonoBehaviour {
@@ -28,6 +38,10 @@ public class Module : MonoBehaviour {
     return null;
   }
 
+  void Start() {
+    UpdateConnections();
+  }
+
   private (Vector3, Quaternion) compose((Vector3 pos, Quaternion rot) tA, (Vector3 pos, Quaternion rot) tB) {
     // run A then B
     var rotation = tA.rot * tB.rot;
@@ -45,18 +59,20 @@ public class Module : MonoBehaviour {
     // connection.anchor is relative to us
     // childConnection.anchor is relative to child
     // child is relative to us
+    // Some of these transforms are probably broken
     
     var p = childConnection.anchor.localPosition;
     // this angle calculation is right
-    var r = childConnection.anchor.localRotation * Quaternion.Euler(0, 180, connection.angle + childConnection.angle);
+    var r = childConnection.anchor.localRotation * Quaternion.Euler(0, 180, 0);
     (var position, var rotation) = compose((connection.anchor.localPosition, connection.anchor.localRotation), invert(p, r));
 
     // position might not be right but not sure
     connection.other.transform.localPosition = rotation * position;
+    Debug.Log(rotation);
     connection.other.transform.localRotation = rotation;
 
     var childBody = connection.other.GetComponent<ArticulationBody>();
-    childBody.matchAnchors = false;
+    childBody.matchAnchors = true; // breaks otherwise :( (unity bug??)
     childBody.jointType = ArticulationJointType.RevoluteJoint;
     childBody.anchorPosition = childConnection.anchor.localPosition;
     childBody.anchorRotation = childConnection.anchor.localRotation;

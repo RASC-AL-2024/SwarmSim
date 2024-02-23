@@ -199,13 +199,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 123561328}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0973734, y: 0.8218581, z: -0.14778672, w: 0.54150414}
-  m_LocalPosition: {x: -13.1, y: -8.3, z: -55.93}
+  m_LocalRotation: {x: 0.16908982, y: 0.0043004444, z: -0.00073779223, w: 0.985591}
+  m_LocalPosition: {x: -11.238, y: -8.729, z: -58.926}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2137635879}
-  m_LocalEulerAnglesHint: {x: 20.388, y: 113.24, z: 0}
+  m_LocalEulerAnglesHint: {x: 19.47, y: 0.5, z: 0}
 --- !u!1001 &221282650
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -214,6 +214,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1216670368}
     m_Modifications:
+    - target: {fileID: 1116346873738893977, guid: 89e1386f4f4814b30a72d436bbfd8aab, type: 3}
+      propertyPath: m_UseGravity
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1116346873738893977, guid: 89e1386f4f4814b30a72d436bbfd8aab, type: 3}
       propertyPath: m_MatchAnchors
       value: 0
@@ -647,6 +651,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 428685992}
     m_Modifications:
+    - target: {fileID: 3249502846359440174, guid: c23b5088624304b4588173fa2793bfd6, type: 3}
+      propertyPath: m_UseGravity
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3249502846359440174, guid: c23b5088624304b4588173fa2793bfd6, type: 3}
       propertyPath: m_MatchAnchors
       value: 0
@@ -1184,7 +1192,7 @@ Transform:
   m_GameObject: {fileID: 1692598800}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.169, y: 3.37, z: -0.741}
+  m_LocalPosition: {x: -1.668, y: 4.32, z: -0.741}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1205,6 +1213,10 @@ PrefabInstance:
     - target: {fileID: 1947975877793671195, guid: 788d8d3c93fe242518731d1159abe4f2, type: 3}
       propertyPath: m_Name
       value: ScooperModule
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574672012880809462, guid: 788d8d3c93fe242518731d1159abe4f2, type: 3}
+      propertyPath: m_UseGravity
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5574672012880809462, guid: 788d8d3c93fe242518731d1159abe4f2, type: 3}
       propertyPath: m_MatchAnchors
@@ -1433,6 +1445,10 @@ PrefabInstance:
       propertyPath: m_Immovable
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 9153897648979660614, guid: 8712d50286a95404493fb6282190f694, type: 3}
+      propertyPath: m_UseGravity
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -1460,6 +1476,10 @@ PrefabInstance:
       propertyPath: connections.Array.data[1].other
       value: 
       objectReference: {fileID: 733933205}
+    - target: {fileID: 593851546963385353, guid: 26ab42a81964644dbb76c29101755af9, type: 3}
+      propertyPath: m_UseGravity
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 593851546963385353, guid: 26ab42a81964644dbb76c29101755af9, type: 3}
       propertyPath: m_MatchAnchors
       value: 0
