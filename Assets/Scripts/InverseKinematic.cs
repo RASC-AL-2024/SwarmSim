@@ -42,6 +42,12 @@ public class InverseKinematics : MonoBehaviour {
     return toPrint;
   }
 
+  public Vector3 Error() {
+    // The center of mass of the last element in the chain.
+    // e.g. the scooper.
+    return target.position - bodies[^1].worldCenterOfMass;
+  }
+
   void Update() {
     // https://nvidia-omniverse.github.io/PhysX/physx/5.3.1/docs/Articulations.html?highlight=cache%20indexing#cache-indexing
 
@@ -49,10 +55,7 @@ public class InverseKinematics : MonoBehaviour {
     var jacobian = new ArticulationJacobian();
     bodies[^1].GetDenseJacobian(ref jacobian);
 
-    // The center of mass of the last element in the chain.
-    // e.g. the scooper.
-    var currentPosition = bodies[^1].worldCenterOfMass;
-    var error = target.position - currentPosition;
+    var error = Error();
     if (error.magnitude < 0.1) {
       return;
     }

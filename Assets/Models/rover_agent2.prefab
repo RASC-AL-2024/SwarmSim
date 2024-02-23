@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &504563393304294895
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7634925230287181640}
+  m_Layer: 0
+  m_Name: Bucket
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7634925230287181640
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504563393304294895}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0.034, y: 0.865, z: 0.376}
+  m_LocalScale: {x: 0.99999976, y: 1, z: 0.99999976}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2577333901368716997}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1192376856215435730
 GameObject:
   m_ObjectHideFlags: 0
@@ -466,7 +497,7 @@ ArticulationBody:
   m_Enabled: 1
   serializedVersion: 5
   m_Mass: 1
-  m_ParentAnchorPosition: {x: -0.76072097, y: 0.42368448, z: -0.5587558}
+  m_ParentAnchorPosition: {x: -0.760721, y: 0.4236846, z: -0.55875605}
   m_ParentAnchorRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_AnchorPosition: {x: 0, y: 1.368451, z: -16.449833}
   m_AnchorRotation: {x: 0.49999997, y: 0.49999997, z: -0.49999997, w: 0.49999997}
@@ -645,6 +676,7 @@ Transform:
   - {fileID: 4822767489750587440}
   - {fileID: 6432347142558716037}
   - {fileID: 1204200013981229937}
+  - {fileID: 7634925230287181640}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!171741748 &7178295886488663249
@@ -726,14 +758,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sid: -1
-  resourceAreas:
-  - m_Center: {x: 30.8, y: 3.89, z: 14.9}
-    m_Extent: {x: 5, y: 5, z: 5}
-  - m_Center: {x: 24.4, y: 3.89, z: -32.3}
-    m_Extent: {x: 5, y: 5, z: 5}
+  miners: []
   processingStation: {fileID: 0}
-  miningDuration: 10
+  miningDuration: 100
   processingDuration: 25
+  bucket: {fileID: 7634925230287181640}
   leftWheels:
   - {fileID: 1841802601659224153}
   - {fileID: 5513243746420228259}
@@ -785,7 +814,7 @@ ArticulationBody:
   m_Enabled: 1
   serializedVersion: 5
   m_Mass: 1
-  m_ParentAnchorPosition: {x: 0.85188466, y: 0.41230834, z: 0.54418063}
+  m_ParentAnchorPosition: {x: 0.85188466, y: 0.41230822, z: 0.54418105}
   m_ParentAnchorRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_AnchorPosition: {x: -0.11291504, y: 0.9808302, z: -11.689663}
   m_AnchorRotation: {x: 0.49999997, y: -0.49999997, z: 0.49999997, w: 0.49999997}
@@ -1473,7 +1502,7 @@ ArticulationBody:
   m_Enabled: 1
   serializedVersion: 5
   m_Mass: 1
-  m_ParentAnchorPosition: {x: 0.80308825, y: 0.4129039, z: -0.55494666}
+  m_ParentAnchorPosition: {x: 0.80308837, y: 0.4129038, z: -0.5549468}
   m_ParentAnchorRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_AnchorPosition: {x: -0.38089752, y: 1.0403872, z: -16.569328}
   m_AnchorRotation: {x: 0.49999997, y: -0.49999997, z: 0.49999997, w: 0.49999997}
@@ -1573,7 +1602,7 @@ ArticulationBody:
   m_Enabled: 1
   serializedVersion: 5
   m_Mass: 1
-  m_ParentAnchorPosition: {x: -0.7570952, y: 0.41618454, z: 0.54330295}
+  m_ParentAnchorPosition: {x: -0.7570953, y: 0.41618443, z: 0.5433034}
   m_ParentAnchorRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_AnchorPosition: {x: 0.025177002, y: 1.3684511, z: -16.81242}
   m_AnchorRotation: {x: 0.49999997, y: 0.49999997, z: -0.49999997, w: 0.49999997}

@@ -11,14 +11,17 @@ public class GameAgent : MonoBehaviour
 {
     [HideInInspector] public int sid = -1;
 
-    [SerializeField]
-    public Bounds[] resourceAreas;
+    public List<Miner> miners;
+
     [SerializeField]
     public GameObject processingStation;
     [SerializeField]
     public float miningDuration; // seconds
     [SerializeField]
     public float processingDuration; // seconds
+
+    [SerializeField]
+    public Transform bucket;
 
     [SerializeField]
     public ArticulationBody[] leftWheels;
@@ -52,6 +55,8 @@ public class GameAgent : MonoBehaviour
     public MotionPlanner motion_planner;
     public TargetPlanner target_planner;
 
+    private Miner? loadingMiner = null;
+
     void Start()
     {
         rover_state = new RoverState(sid);
@@ -64,7 +69,7 @@ public class GameAgent : MonoBehaviour
 
     private void initTargetPlanner()
     {
-        TargetPlanner.resourceAreas = resourceAreas;
+        TargetPlanner.miners = miners;
         TargetPlanner.processingStation = processingStation.transform;
         TargetPlanner.miningDuration = miningDuration;
         TargetPlanner.processingDuration = processingDuration;
@@ -122,6 +127,30 @@ public class GameAgent : MonoBehaviour
         rover_state.updateState(curr_state);
     }
 
+    void updateMinerState(bool isMoving) {
+      if (isMoving) {
+        if (loadingMiner != null) {
+          loadingMiner.UnregisterRover(bucket);
+          loadingMiner = null;
+        }
+        return;
+      }
+
+      Miner? nearbyMiner = null;
+      foreach (var miner in miners) {
+        if ((miner.minePosition.position - transform.position).magnitude <= 100) {
+          nearbyMiner = miner;
+          break;
+        }
+      }
+
+      if (nearbyMiner == null || loadingMiner != null || nearbyMiner == loadingMiner)
+        return;
+
+      loadingMiner = nearbyMiner;
+      loadingMiner.RegisterRover(bucket);
+    }
+
     void Update()
     {
         if (rover_state.battery.chargeAmount <= lowBattery && !target_planner.isChargePlan()) {
@@ -143,17 +172,8 @@ public class GameAgent : MonoBehaviour
             Simulator.Instance.setAgentVelocity(sid, Vector2.zero);
             Simulator.Instance.setAgentIsMoving(sid, false);
         }
-
+        updateMinerState(target_planner.getIsMoving());
         if(target_planner.isValidState())
             updateRoverState(target_planner.getCurrentState());
-    }
-
-    void OnDrawGizmos()
-    {
-        foreach (var bounds in resourceAreas)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireCube(bounds.center, bounds.size);
-        }
     }
 }

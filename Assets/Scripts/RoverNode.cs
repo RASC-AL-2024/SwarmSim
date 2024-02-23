@@ -23,6 +23,7 @@ public class RoverNode
         public GoalType goal_type;
         public Vector2 goal_pos;
         public float goal_duration;
+        public Miner goal_miner;
 
         public Func<Vector2> pos_generator;
         public Func<float> time_generator;
@@ -34,7 +35,7 @@ public class RoverNode
 
         public bool Check(Vector2 pos, float time)
         {
-            float position_epsilon = 5f;
+            float position_epsilon = 3f;
             if (goal_type == GoalType.DURATION)
             {
                 return goal_duration <= time;
