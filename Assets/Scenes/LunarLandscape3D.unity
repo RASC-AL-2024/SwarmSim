@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 297098016}
-  m_IndirectSpecularColor: {r: 0.040539697, g: 0.038835242, b: 0.040983073, a: 1}
+  m_IndirectSpecularColor: {r: 0.04046634, g: 0.038820453, b: 0.040931515, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -503,6 +503,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agentPrefab: {fileID: 3972119860936325249, guid: 3fbaa6e08ce229d4c93d23965d6bd3b8, type: 3}
+  miners: []
   n_rovers: 3
   spawn_radius: 10
   time_scale: 5
@@ -906,7 +907,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 1692598801}
-  actual: {fileID: 1788793191}
   chain:
   - {fileID: 1216670367}
   - {fileID: 428685994}
@@ -1380,11 +1380,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 231589105}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &1788793191 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 878777465710747760, guid: 788d8d3c93fe242518731d1159abe4f2, type: 3}
-  m_PrefabInstance: {fileID: 1736367706}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1858972094
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1698,6 +1693,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2137635879}
+  - component: {fileID: 2137635880}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -1721,6 +1717,20 @@ Transform:
   - {fileID: 123561331}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2137635880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2137635878}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f5b507b3a3b5a8498ce7f018752d4b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 5
+  sensitivity: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
