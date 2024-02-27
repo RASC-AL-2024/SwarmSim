@@ -121,7 +121,7 @@ public class TargetPlanner
     Vector2 generateMiningPosition()
     {
         var miner = TargetPlanner.miners[UnityEngine.Random.Range(0, TargetPlanner.miners.Count)];
-        return new Vector2(miner.minePosition.position.x, miner.minePosition.position.z);
+        return new Vector2(miner.center.position.x, miner.center.position.z);
     }
 
     public bool isValidState()
