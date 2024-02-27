@@ -35,7 +35,7 @@ public class RoverNode
 
         public bool Check(Vector2 pos, float time)
         {
-            float position_epsilon = 3f;
+            float position_epsilon = 2f;
             if (goal_type == GoalType.DURATION)
             {
                 return goal_duration <= time;

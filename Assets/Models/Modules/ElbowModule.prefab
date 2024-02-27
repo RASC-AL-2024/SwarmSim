@@ -448,12 +448,8 @@ MonoBehaviour:
   connections:
   - anchor: {fileID: 987875359269374962}
     other: {fileID: 0}
-    isRevolute: 0
-    angle: 0
   - anchor: {fileID: 7373130409380233263}
     other: {fileID: 0}
-    isRevolute: 0
-    angle: 0
 --- !u!171741748 &593851546963385353
 ArticulationBody:
   m_ObjectHideFlags: 0
@@ -506,7 +502,7 @@ ArticulationBody:
   m_LinearDamping: 0.05
   m_AngularDamping: 0.05
   m_JointFriction: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_CenterOfMass: {x: 0.022, y: 1.02, z: 0.096}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
   m_IncludeLayers:
@@ -515,7 +511,7 @@ ArticulationBody:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_ImplicitCom: 1
+  m_ImplicitCom: 0
   m_ImplicitTensor: 1
   m_Immovable: 0
   m_UseGravity: 1

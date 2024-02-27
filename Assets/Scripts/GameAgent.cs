@@ -138,7 +138,7 @@ public class GameAgent : MonoBehaviour
 
       Miner? nearbyMiner = null;
       foreach (var miner in miners) {
-        if ((miner.minePosition.position - transform.position).magnitude <= 100) {
+        if ((miner.minePosition.position - transform.position).magnitude <= 5) {
           nearbyMiner = miner;
           break;
         }

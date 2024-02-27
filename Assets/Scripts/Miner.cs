@@ -6,6 +6,10 @@ public class Miner : MonoBehaviour {
   [SerializeField]
   public Transform minePosition;
 
+  // Used for generating mining positions
+  [SerializeField]
+  public Transform center;
+
   private List<Transform> waitingRovers;
   private IKStatus status;
 
@@ -17,12 +21,12 @@ public class Miner : MonoBehaviour {
   }
 
   public void RegisterRover(Transform container) {
-    Debug.LogFormat("Registered: {0}", container);
+    Debug.LogFormat("{0}, registered: {1}", name, container);
     waitingRovers.Add(container);
   }
 
   public void UnregisterRover(Transform container) {
-    Debug.LogFormat("Unregistered: {0}", container);
+    Debug.LogFormat("{0}, unregistered: {1}", name, container);
     waitingRovers.Remove(container);
   }
 
