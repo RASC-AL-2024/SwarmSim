@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 123561331}
   - component: {fileID: 123561330}
+  - component: {fileID: 123561332}
   m_Layer: 1
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -206,6 +207,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2137635879}
   m_LocalEulerAnglesHint: {x: 19.47, y: 0.5, z: 0}
+--- !u!114 &123561332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 123561328}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed73f55285dae4c9fbe895ef70682dba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mouseSensitivity: 10
+  movementSensitivity: 0.5
 --- !u!1001 &221282650
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -503,6 +518,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agentPrefab: {fileID: 3972119860936325249, guid: 3fbaa6e08ce229d4c93d23965d6bd3b8, type: 3}
+  miners: []
   n_rovers: 3
   spawn_radius: 10
   time_scale: 5
@@ -906,7 +922,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 1692598801}
-  actual: {fileID: 1788793191}
   chain:
   - {fileID: 1216670367}
   - {fileID: 428685994}
@@ -1380,11 +1395,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 231589105}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &1788793191 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 878777465710747760, guid: 788d8d3c93fe242518731d1159abe4f2, type: 3}
-  m_PrefabInstance: {fileID: 1736367706}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1858972094
 PrefabInstance:
   m_ObjectHideFlags: 0
