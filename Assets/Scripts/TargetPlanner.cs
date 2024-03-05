@@ -92,6 +92,32 @@ public class TargetPlanner
         state_list.head.Data.goal.Generate();
     }
 
+    public void generateRepairPlan(FailableModule target, float downTime) {
+        // Go back to base, wait, go to failed thing, wait
+        resetPlan();
+        setRepeatPlan(false);
+
+        RoverNode moving_to_base = new RoverNode(RStateType.MOVING_TO_REPAIRING, new RGoal(RGoalType.POSITION));
+        moving_to_base.goal.pos_generator = () => new Vector2(TargetPlanner.processingStation.position.x, TargetPlanner.processingStation.position.z);
+
+        RoverNode getting_materials = new RoverNode(RStateType.REPAIRING, new RGoal(RGoalType.DURATION));
+        getting_materials.goal.time_generator = () => downTime;
+
+        RoverNode moving_to_failed = new RoverNode(RStateType.MOVING_TO_REPAIRING, new RGoal(RGoalType.POSITION));
+        moving_to_failed.goal.pos_generator = () => new Vector2(target.realCenter.x, target.realCenter.z);
+
+        RoverNode repairing = new RoverNode(RStateType.REPAIRING, new RGoal(RGoalType.DURATION));
+        repairing.goal.time_generator = () => downTime;
+
+        state_list.Add(moving_to_base);
+        state_list.Add(getting_materials);
+        state_list.Add(moving_to_failed);
+        state_list.Add(repairing);
+        
+        state_list.head.Data.timestamp = Time.time;
+        state_list.head.Data.goal.Generate();
+    }
+
     public Vector2 getGoalPosition()
     {
         if(state_list.head.Data.goal.goal_type == RGoalType.POSITION)
@@ -111,6 +137,12 @@ public class TargetPlanner
       if (state_list.head == null) return false;
       return state_list.head.Data.state == RStateType.MOVING_TO_CHARGING
         || state_list.head.Data.state == RStateType.CHARGING;
+    }
+
+    public bool isRepairPlan() {
+      if (state_list.head == null) return false;
+      return state_list.head.Data.state == RStateType.MOVING_TO_REPAIRING
+        || state_list.head.Data.state == RStateType.REPAIRING;
     }
 
     private void PRINT(string str)
