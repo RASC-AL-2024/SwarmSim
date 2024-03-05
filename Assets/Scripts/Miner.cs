@@ -22,8 +22,10 @@ public class Miner : FailableModule {
   bool broken = false;
 
   void Start() {
+    initFailable();
     waitingRovers = new List<Transform>();
     status = new IKStatus(GetComponent<InverseKinematics>());
+    resourcesLoaded = new Dictionary<Transform, float>();
   }
 
   public bool RegisterRover(Transform container) {

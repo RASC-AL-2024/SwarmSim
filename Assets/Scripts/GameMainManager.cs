@@ -31,7 +31,7 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
     GameAgent[] rovers;
 
     public Dictionary<FailableModule, bool> brokenModules;
-    public float totalResources = 0.0f;
+    public float totalResources = 1000.0f; // roughly grams??
 
     void Start()
     {
