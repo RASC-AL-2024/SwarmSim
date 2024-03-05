@@ -1,6 +1,7 @@
 ﻿#define USE_PLANNER
 
 using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using RVO;
@@ -33,9 +34,13 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
     public Dictionary<FailableModule, bool> brokenModules;
     public float totalResources = 1000.0f; // roughly grams??
 
+    private StreamWriter csvWriter;
+
     void Start()
     {
         Time.timeScale = time_scale;
+
+        csvWriter = new StreamWriter("resourceData.csv", true);
 
         Simulator.Instance.setTimeStep(0.25f);
         Simulator.Instance.setAgentDefaults(10.0f, 10, 5.0f, 5.0f, 1.5f, 2.0f, new Vector2(0.0f, 0.0f));
@@ -50,10 +55,22 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
           foreach (var miner in miners)
             rover.miners.Add(miner);
 
+        StartCoroutine(logResource());
+
 #if USE_PLANNER
         udp_socket.OnPlannerInput += ProcessPlannerInput;
         StartCoroutine(sendStateToPlanner());
 #endif
+    }
+
+    IEnumerator logResource()
+    {
+        while(true)
+        {
+            csvWriter.WriteLine(totalResources.ToString());
+            csvWriter.Flush();
+            yield return new WaitForSeconds(60f);
+        }
     }
 
     IEnumerator sendStateToPlanner()

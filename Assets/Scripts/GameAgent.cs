@@ -248,7 +248,10 @@ public class GameAgent : FailableModule
         return;
       }
 
-      SingletonBehaviour<GameMainManager>.Instance.brokenModules[repairTarget] = false;
+      var dict = SingletonBehaviour<GameMainManager>.Instance.brokenModules;
+      if (dict.ContainsKey(repairTarget)) {
+        dict[repairTarget] = false;
+      }
       repairTarget = null;
     }
 
