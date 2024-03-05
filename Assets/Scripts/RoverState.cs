@@ -6,7 +6,7 @@ using System;
 [Serializable]
 public class RoverState
 {
-    public enum Activity { MINING, MOVING, CHARGING, NEUTRAL };
+    public enum Activity { MINING, MOVING, CHARGING, REPAIRING, NEUTRAL };
     float neutralDischargeRate = 0.1f;
     float miningDischargeRate = 0.0f;
     float movingDischargeRate = 0.1f;
@@ -79,6 +79,9 @@ public class RoverState
       switch (activity) {
         case Activity.CHARGING:
           battery.charge(dt);
+          return;
+        case Activity.REPAIRING:
+          battery.discharge(neutralDischargeRate, dt);
           return;
         case Activity.MINING:
           battery.discharge(neutralDischargeRate + miningDischargeRate, dt);
