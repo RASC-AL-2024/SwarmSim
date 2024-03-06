@@ -270,12 +270,12 @@ public class GameAgent : FailableModule
     }
 
     // goofy
-    bool seen = false;
     void checkImpact() {
       var transform = SingletonBehaviour<GameMainManager>.Instance.impact;
-      if (transform != null && !seen) {
-        seen = true;
+      if (transform != null && !target_planner.isChargePlan()) {
         Debug.LogFormat("Detected impact");
+        endRepair();
+        target_planner.generateChargingPlan(100f);
       }
     }
 
