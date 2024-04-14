@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class Miner : MonoBehaviour {
+public class Miner : FailableModule {
   // Where to scoop froom
   [SerializeField]
   public Transform minePosition;
@@ -10,28 +10,54 @@ public class Miner : MonoBehaviour {
   [SerializeField]
   public Transform center;
 
+  [SerializeField]
+  public float resourcesPerScoop;
+
   private List<Transform> waitingRovers;
   private IKStatus status;
+  private Dictionary<Transform, float> resourcesLoaded;
 
   private Transform? activeLoading;
 
+  bool broken = false;
+
   void Start() {
+    initFailable();
     waitingRovers = new List<Transform>();
     status = new IKStatus(GetComponent<InverseKinematics>());
+    resourcesLoaded = new Dictionary<Transform, float>();
   }
 
-  public void RegisterRover(Transform container) {
+  public bool RegisterRover(Transform container) {
+    if (broken)
+      return false;
+
     Debug.LogFormat("{0}, registered: {1}", name, container);
     waitingRovers.Add(container);
+    resourcesLoaded.Add(container, 0.0f);
+    return true;
   }
 
-  public void UnregisterRover(Transform container) {
-    Debug.LogFormat("{0}, unregistered: {1}", name, container);
+  public float UnregisterRover(Transform container) {
     waitingRovers.Remove(container);
+    float totalLoaded;
+    resourcesLoaded.Remove(container, out totalLoaded);
+    Debug.LogFormat("{0}, unregistered: {1} with {2} resources", name, container, totalLoaded);
+    return totalLoaded;
+  }
+
+  public override void fail() {
+    broken = true;
+  }
+  public override void fix() {
+    broken = false;
   }
 
   void Update() {
     bool converged = status.Step();
+
+    if (broken)
+      return;
 
     // The rover left
     if (activeLoading != null && !waitingRovers.Contains(activeLoading)) {
@@ -52,6 +78,7 @@ public class Miner : MonoBehaviour {
 
     // We dropped off a load
     if (converged && activeLoading != null) {
+      resourcesLoaded[activeLoading] += resourcesPerScoop;
       activeLoading = null;
       status.Target(minePosition);
       return;
