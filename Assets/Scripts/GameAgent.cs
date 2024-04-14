@@ -269,11 +269,23 @@ public class GameAgent : FailableModule
       }
     }
 
+    // goofy
+    void checkImpact() {
+      var transform = SingletonBehaviour<GameMainManager>.Instance.impact;
+      if (transform != null && !target_planner.isChargePlan()) {
+        Debug.LogFormat("Detected impact");
+        endRepair();
+        target_planner.generateChargingPlan(100f);
+      }
+    }
+
     void Update()
     {
         // Do nothing if we are broken
         if (broken || rover_state.battery.chargeAmount <= 0f)
           return;
+
+        checkImpact();
 
         if (rover_state.battery.chargeAmount <= lowBattery && !target_planner.isChargePlan()) {
           endRepair();

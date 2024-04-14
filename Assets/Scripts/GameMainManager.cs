@@ -34,6 +34,10 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
     public Dictionary<FailableModule, bool> brokenModules;
     public float totalResources = 1000.0f; // roughly grams??
 
+    // Only non-null if there is impact
+    // Just poll this lol
+    public Transform impact = null;
+
     private StreamWriter csvWriter;
 
     void Start()
