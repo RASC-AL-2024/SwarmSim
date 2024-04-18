@@ -1,8 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-// battery discharge function of actual joint movements
-
+// Compiler gets pissed off without this
 namespace System.Runtime.CompilerServices
 {
     public class IsExternalInit { }
@@ -137,6 +136,7 @@ public class Planner : SingletonBehaviour<Planner>
                 rover.GetComponentInParent<BatteryModule>().sourceBattery = resources.battery;
                 break;
             case UnloadGoal:
+                Debug.LogFormat("Set unload");
                 rover.GetComponentInParent<LoadModule>().unload = resources.dirt;
                 break;
         }

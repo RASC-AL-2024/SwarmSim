@@ -8,7 +8,7 @@ public static class Constants
     public const float servoIdleDrain = 1; // W
     public const float servoActiveDrain = 1; // W
     public const float chargeRate = 100; // W
-    public const float lowBatteryThreshold = 0.1f; // 10%, when we go charge
+    public const float lowBatteryThreshold = 0.2f; // 10%, when we go charge
 
     // Raw material
     public const float roverCarryingCapacity = 100; // g
@@ -34,5 +34,5 @@ public static class Constants
     // Repair
     public const float repairTime = 5; // s to repair once another rover gets to the crime scene
     public const float maybeFailInterval = 10000; // s, how often possibility of failure
-    public const float failureChance = 0.50f; // s, probability of failing
+    public const float failureChance = 0.10f; // s, probability of failing
 }

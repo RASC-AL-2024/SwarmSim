@@ -131,6 +131,8 @@ public class LoadModule : MonoBehaviour
         // We are done
         if (unload != null && dirt.empty())
         {
+            // Highly cursed behaviour if there is no print here this gets spammed
+            Debug.LogFormat("Unload: {0}, dirt: {1}", unload != null, dirt.empty());
             SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.FinishedUnloading(GetComponentInParent<GameAgent>()));
             unload = null;
         }
