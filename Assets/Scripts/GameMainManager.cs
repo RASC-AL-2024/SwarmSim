@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using RVO;
 using UnityEngine;
-using Newtonsoft.Json;
 
 public class GameMainManager : SingletonBehaviour<GameMainManager>
 {
@@ -71,7 +70,7 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
         yield return new WaitForSeconds(1f);
         while (true)
         {
-            string output_string = serializeState();
+            string output_string = "";
             udp_socket.SendData(output_string);
             yield return new WaitForSeconds(planner_update_freq);
         }
@@ -79,21 +78,7 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
 
     private void ProcessPlannerInput(string planner_input)
     {
-        PlannerInterface.applyInputs(rovers, planner_input);
-    }
-
-    private string serializeState()
-    {
-        string output_string = "";
-        foreach (GameAgent agent in rovers)
-        {
-            RoverState rover_state = agent.rover_state;
-            rover_state.serializeObject();
-            string state_string = JsonConvert.SerializeObject(rover_state);
-            output_string += state_string + "\n";
-        }
-
-        return output_string;
+        // PlannerInterface.applyInputs(rovers, planner_input);
     }
 
     private void Update()

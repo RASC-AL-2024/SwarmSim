@@ -3,17 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using RVO;
 using UnityEngine;
+using UnityEditor;
 
-using RStateType = RoverNode.State;
-
+[System.Serializable]
 public class Storage
 {
     public float current;
     public float capacity;
 
-    public Storage(float capacity)
+    public Storage(float capacity, float? current = null)
     {
-        this.current = capacity;
+        this.current = current ?? capacity;
         this.capacity = capacity;
     }
 
@@ -34,6 +34,11 @@ public class Storage
         return oldcurrent - current;
     }
 
+    public void remove(float dcurrent)
+    {
+        current = Mathf.Max(current - dcurrent, 0f);
+    }
+
     public bool empty()
     {
         return current == 0f;
@@ -50,6 +55,7 @@ public class Storage
     }
 }
 
+[System.Serializable]
 public class Battery : Storage
 {
     // Capacity is in J
@@ -70,6 +76,7 @@ public class BatteryModule : MonoBehaviour
 
     void Start()
     {
+        battery = new Battery(Constants.roverBatteryCapacity);
         rootBody = GetComponentInParent<ArticulationBody>();
     }
 
@@ -100,21 +107,21 @@ public class BatteryModule : MonoBehaviour
 
 public class LoadModule : MonoBehaviour
 {
-    public Storage dirt = new Storage(Constants.roverCarryingCapacity);
-    public Storage unload; // maybe null
+    public Storage dirt = new Storage(Constants.roverCarryingCapacity, 0);
+    public Storage unload = null; // maybe null
 
-    private Miner miner; // maybe null
+    private Miner miner = null; // maybe null
 
     public void setMiner(Miner miner)
     {
         this.miner = miner;
-        this.miner.RegisterRover(GetComponentInParent<GameAgent>().bucket);
+        this.miner.RegisterRover(GetComponentInParent<GameAgent>().bucket, dirt);
     }
 
     void Update()
     {
         // Unregister us from the miner if we are full
-        if (miner != null && dirt.full())
+        if (miner != null && (miner.broken || dirt.full()))
         {
             miner.UnregisterRover(GetComponentInParent<GameAgent>().bucket);
             SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.FinishedLoading(GetComponentInParent<GameAgent>()));
@@ -160,8 +167,6 @@ public class RepairModule : MonoBehaviour
 
 public class FailableModule : MonoBehaviour
 {
-    public float maybeFailFreq = 100f;
-    public float failureChance = 0.01f;
     public Vector3 realCenter;
 
     public bool broken = false;
@@ -172,51 +177,55 @@ public class FailableModule : MonoBehaviour
         StartCoroutine(failLoop());
     }
 
-    public virtual void fail() { }
-    public virtual void fix() { }
-
-    void registerBroken()
+    public void fix()
     {
-        SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.Broken(this));
-        broken = true;
+        broken = false;
     }
 
-    void doFail()
+    public void fail()
     {
         if (broken)
             return;
 
         Debug.LogFormat("Module {0} failed", name);
-        registerBroken();
-        fail();
+        SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.Broken(this));
+        broken = true;
     }
 
     IEnumerator failLoop()
     {
         while (true)
         {
-            if (UnityEngine.Random.Range(0f, 1f) <= failureChance)
+            if (UnityEngine.Random.Range(0f, 1f) <= Constants.failureChance)
             {
-                doFail();
+                fail();
             }
 
-            yield return new WaitForSeconds(maybeFailFreq);
+            yield return new WaitForSeconds(Constants.maybeFailInterval);
         }
     }
 };
 
+[CustomEditor(typeof(FailableModule))]
+public class FailableModuleEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector(); // Draws the default inspector
+
+        FailableModule script = (FailableModule)target;
+
+        // Add a custom button in the inspector
+        if (GUILayout.Button("Kill"))
+        {
+            script.fail();
+        }
+    }
+}
+
 public class GameAgent : FailableModule
 {
     [HideInInspector] public int sid = -1;
-
-    public List<Miner> miners;
-
-    [SerializeField]
-    public GameObject processingStation;
-    [SerializeField]
-    public float miningDuration; // seconds
-    [SerializeField]
-    public float processingDuration; // seconds
 
     [SerializeField]
     public Transform bucket;
@@ -226,77 +235,27 @@ public class GameAgent : FailableModule
     [SerializeField]
     public ArticulationBody[] rightWheels;
 
-    public RoverState rover_state;
-
-    State processingState;
-
-    private Vector2? goalPosition;
+    private Vector2? goalPosition = null;
 
     private float wheel_diameter = 0.336f;
     private float axle_width = 0.60f;
     private float maxwheel_velocity = 2; // rad/s
 
-    private float target_velocity = 0f;
-    private float target_angular_velocity = 0f;
-
-    public float lowBattery = 20f;
-    public float carryableResources = 100f;
-    public float repairDowntimeS = 100f;
-
-    private static Dictionary<RStateType, RoverState.Activity> activityMap =
-      new Dictionary<RStateType, RoverState.Activity>{
-        {RStateType.MOVING_TO_MINE, RoverState.Activity.MOVING},
-        {RStateType.MOVING_TO_PROCESSING, RoverState.Activity.MOVING},
-        {RStateType.MOVING_TO_CHARGING, RoverState.Activity.MOVING},
-        {RStateType.MOVING_TO_REPAIRING, RoverState.Activity.MOVING},
-        {RStateType.MINING, RoverState.Activity.MINING},
-        {RStateType.CHARGING, RoverState.Activity.CHARGING},
-        {RStateType.REPAIRING, RoverState.Activity.REPAIRING},
-        {RStateType.PROCESSING, RoverState.Activity.NEUTRAL},
-        {RStateType.OTHER, RoverState.Activity.NEUTRAL}
-      };
-
     public MotionPlanner motion_planner;
-    public TargetPlanner target_planner;
-
-    private Miner loadingMiner = null;
-    private FailableModule repairTarget = null;
 
     private BatteryModule batteryModule;
 
     void Start()
     {
-        miners = new List<Miner>(UnityEngine.Object.FindObjectsOfType<Miner>());
-
         initFailable();
-        rover_state = new RoverState(sid);
 
-        initTargetPlanner();
-
-        target_planner = new TargetPlanner(sid);
         motion_planner = new MotionPlanner(sid, transform);
 
-        batteryModule = GetComponentInParent<BatteryModule>();
-    }
+        batteryModule = gameObject.AddComponent<BatteryModule>();
+        gameObject.AddComponent<LoadModule>();
+        gameObject.AddComponent<RepairModule>();
 
-    public override void fail()
-    {
-        // Stop us
-        Velocity zero_velocity = new Velocity(0, 0);
-        updateWheels(zero_velocity);
-        Simulator.Instance.setAgentVelocity(sid, Vector2.zero);
-        Simulator.Instance.setAgentIsMoving(sid, false);
-    }
-    public override void fix()
-    {
-    }
-
-    private void initTargetPlanner()
-    {
-        TargetPlanner.miners = miners;
-        TargetPlanner.processingStation = processingStation.transform;
-        TargetPlanner.miningDuration = miningDuration;
-        TargetPlanner.processingDuration = processingDuration;
+        SingletonBehaviour<Planner>.Instance.registerRover(this);
     }
 
     private void updateWheels(Velocity current_velocity)
@@ -340,60 +299,6 @@ public class GameAgent : FailableModule
         return new State(position, rot);
     }
 
-    void updateRoverState(RStateType state_type)
-    {
-        bool has_load = state_type == RStateType.MOVING_TO_PROCESSING;
-        rover_state.updateHasLoad(has_load);
-
-        // rover_state.updateBattery(activityMap[state_type], Time.deltaTime);
-
-        var curr_state = getCurrentState();
-        rover_state.updateState(curr_state);
-    }
-
-    void maybeStartRepairPlan()
-    {
-        foreach (var kvp in SingletonBehaviour<GameMainManager>.Instance.brokenModules)
-        {
-            if (!kvp.Value)
-            {
-                // there has got to be a better way
-                SingletonBehaviour<GameMainManager>.Instance.brokenModules[kvp.Key] = true;
-                target_planner.generateRepairPlan(kvp.Key, repairDowntimeS);
-                Debug.LogFormat("Going to repair {0}", kvp.Key.name);
-                repairTarget = kvp.Key;
-                break;
-            }
-        }
-    }
-
-    void endRepair()
-    {
-        if (repairTarget is null)
-        {
-            return;
-        }
-
-        var dict = SingletonBehaviour<GameMainManager>.Instance.brokenModules;
-        if (dict.ContainsKey(repairTarget))
-        {
-            dict[repairTarget] = false;
-        }
-        repairTarget = null;
-    }
-
-    // goofy
-    void checkImpact()
-    {
-        var transform = SingletonBehaviour<GameMainManager>.Instance.impact;
-        if (transform != null && !target_planner.isChargePlan())
-        {
-            Debug.LogFormat("Detected impact");
-            endRepair();
-            target_planner.generateChargingPlan(100f);
-        }
-    }
-
     public void setGoalPosition(Vector2 goalPosition)
     {
         this.goalPosition = goalPosition;
@@ -403,7 +308,13 @@ public class GameAgent : FailableModule
     {
         // Do nothing if we are broken
         if (broken || batteryModule.battery.empty())
+        {
+            Velocity zero_velocity = new Velocity(0, 0);
+            updateWheels(zero_velocity);
+            Simulator.Instance.setAgentVelocity(sid, Vector2.zero);
+            Simulator.Instance.setAgentIsMoving(sid, false);
             return;
+        }
 
         // Check arrival
         if (goalPosition.HasValue && Vector2.Distance(goalPosition.Value, get2dPosition()) < 2f)

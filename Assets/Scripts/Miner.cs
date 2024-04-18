@@ -11,48 +11,49 @@ public class Miner : FailableModule
     [SerializeField]
     public Transform center;
 
-    [SerializeField]
-    public float resourcesPerScoop;
-
     private List<Transform> waitingRovers;
     private IKStatus status;
-    private Dictionary<Transform, float> resourcesLoaded;
+    private Dictionary<Transform, Storage> resourcesLoaded;
 
     private Transform activeLoading;
+
+    private BatteryModule batteryModule;
 
     void Start()
     {
         initFailable();
         waitingRovers = new List<Transform>();
         status = new IKStatus(GetComponent<InverseKinematics>());
-        resourcesLoaded = new Dictionary<Transform, float>();
+        resourcesLoaded = new Dictionary<Transform, Storage>();
+
+        batteryModule = gameObject.AddComponent<BatteryModule>();
+
+        SingletonBehaviour<Planner>.Instance.registerMiner(this);
     }
 
-    public bool RegisterRover(Transform container)
+    public bool RegisterRover(Transform container, Storage roverStorage)
     {
-        if (broken)
+        if (broken || batteryModule.battery.empty())
             return false;
 
         Debug.LogFormat("{0}, registered: {1}", name, container);
         waitingRovers.Add(container);
-        resourcesLoaded.Add(container, 0.0f);
+        resourcesLoaded.Add(container, roverStorage);
         return true;
     }
 
-    public float UnregisterRover(Transform container)
+    public void UnregisterRover(Transform container)
     {
         waitingRovers.Remove(container);
-        float totalLoaded;
-        resourcesLoaded.Remove(container, out totalLoaded);
-        Debug.LogFormat("{0}, unregistered: {1} with {2} resources", name, container, totalLoaded);
-        return totalLoaded;
+        resourcesLoaded.Remove(container);
+        Debug.LogFormat("{0}, unregistered: {1}", name, container);
     }
 
     void Update()
     {
         bool converged = status.Step();
 
-        if (broken)
+        if (broken || batteryModule.battery.empty())
             return;
 
         // The rover left
@@ -77,7 +78,7 @@ public class Miner : FailableModule
         // We dropped off a load
         if (converged && activeLoading != null)
         {
-            resourcesLoaded[activeLoading] += resourcesPerScoop;
+            resourcesLoaded[activeLoading].add(Constants.scoopCapacity);
             activeLoading = null;
             status.Target(minePosition);
             return;

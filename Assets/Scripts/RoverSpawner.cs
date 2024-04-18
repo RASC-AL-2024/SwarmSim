@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using RVO;
 using UnityEngine.Assertions;
-using UnityEngine.Assertions.Comparers;
 
 public class RoverSpawner
 {
@@ -24,7 +21,7 @@ public class RoverSpawner
     private static GameObject getProcessingStation()
     {
         GameObject processing_station = GameObject.Find("ProcessingStation");
-        if(processing_station == null)
+        if (processing_station == null)
         {
             throw new System.Exception("Processing station is not found");
         }
@@ -53,7 +50,6 @@ public class RoverSpawner
             Vector3 position = getRandomSpawnLocation(terrain, spawn_center, spawn_radius, angle);
             GameObject next_instance = CreateAgent(agentPrefab, position);
             GameAgent ga = next_instance.GetComponent<GameAgent>();
-            ga.processingStation = processing_station;
             rovers[i] = ga;
         }
         return rovers;
