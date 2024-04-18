@@ -1,21 +1,15 @@
 ﻿#define USE_PLANNER
 
-using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using RVO;
 using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEngine.Assertions.Comparers;
-using UnityEngine.UIElements;
-using Random = System.Random;
 using Newtonsoft.Json;
 
 public class GameMainManager : SingletonBehaviour<GameMainManager>
 {
     public GameObject agentPrefab;
-    public Miner[] miners;
 
     [SerializeField]
     int n_rovers = 1;
@@ -54,11 +48,6 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
         // Maps broken module to rover currently repairing it
         brokenModules = new Dictionary<FailableModule, bool>();
 
-        // jank
-        foreach (var rover in rovers)
-          foreach (var miner in miners)
-            rover.miners.Add(miner);
-
         StartCoroutine(logResource());
 
 #if USE_PLANNER
@@ -69,7 +58,7 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
 
     IEnumerator logResource()
     {
-        while(true)
+        while (true)
         {
             csvWriter.WriteLine(totalResources.ToString());
             csvWriter.Flush();
@@ -80,7 +69,7 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
     IEnumerator sendStateToPlanner()
     {
         yield return new WaitForSeconds(1f);
-        while(true)
+        while (true)
         {
             string output_string = serializeState();
             udp_socket.SendData(output_string);

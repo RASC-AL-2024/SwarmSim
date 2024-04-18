@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -9,7 +8,7 @@ using CommandDict = System.Collections.Generic.Dictionary<string, string>;
 public class PlannerInterface
 {
 
-    enum CommandType { MINE, MOVE_TO, REPAIR};
+    enum CommandType { MINE, MOVE_TO, REPAIR };
 
     abstract class AbstractCommand
     {
@@ -116,9 +115,9 @@ public class PlannerInterface
         return command_list;
     }
 
-    private static void applyCommands(GameAgent[] rovers, List<AbstractCommand> commands) 
+    private static void applyCommands(GameAgent[] rovers, List<AbstractCommand> commands)
     {
-        foreach(AbstractCommand next_com in commands)
+        foreach (AbstractCommand next_com in commands)
         {
             GameAgent agent = rovers[next_com.id];
             next_com.applyCommand(agent);

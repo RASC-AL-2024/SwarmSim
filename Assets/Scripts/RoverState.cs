@@ -31,8 +31,9 @@ public class RoverState
             chargeAmount = Mathf.Min(maxCapacity, chargeAmount + chargeRate * dt);
         }
 
-        public float chargeDuration() {
-          return maxCapacity / chargeRate;
+        public float chargeDuration()
+        {
+            return maxCapacity / chargeRate;
         }
 
         public void discharge(float rate, float dt)
@@ -76,23 +77,24 @@ public class RoverState
 
     public void updateBattery(Activity activity, float dt)
     {
-      switch (activity) {
-        case Activity.CHARGING:
-          battery.charge(dt);
-          return;
-        case Activity.REPAIRING:
-          battery.discharge(neutralDischargeRate, dt);
-          return;
-        case Activity.MINING:
-          battery.discharge(neutralDischargeRate + miningDischargeRate, dt);
-          return;
-        case Activity.MOVING:
-          float scale = hasLoad ? movingLoadScale : 1.0f;
-          battery.discharge(neutralDischargeRate + movingDischargeRate * scale, dt);
-          return;
-        case Activity.NEUTRAL:
-          battery.discharge(neutralDischargeRate, dt);
-          return;
-      }
+        switch (activity)
+        {
+            case Activity.CHARGING:
+                battery.charge(dt);
+                return;
+            case Activity.REPAIRING:
+                battery.discharge(neutralDischargeRate, dt);
+                return;
+            case Activity.MINING:
+                battery.discharge(neutralDischargeRate + miningDischargeRate, dt);
+                return;
+            case Activity.MOVING:
+                float scale = hasLoad ? movingLoadScale : 1.0f;
+                battery.discharge(neutralDischargeRate + movingDischargeRate * scale, dt);
+                return;
+            case Activity.NEUTRAL:
+                battery.discharge(neutralDischargeRate, dt);
+                return;
+        }
     }
 }
