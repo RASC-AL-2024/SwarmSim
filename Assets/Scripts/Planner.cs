@@ -141,13 +141,14 @@ public class Planner : SingletonBehaviour<Planner>
     {
         foreach (var behaviour in rover.GetComponents<Behaviour>())
             behaviour.Cancel();
+        Debug.LogFormat("Cancelled goal for {0}", rover.sid);
     }
 
     void Update()
     {
         foreach (var rover in rovers)
         {
-            if (rover.GetComponentInParent<BatteryModule>().battery.isLow())
+            if (rover.GetComponentInParent<BatteryModule>().Battery.isLow() && !(goals[rover] is ChargeGoal))
             {
                 cancelGoal(rover);
                 goals[rover] = new ChargeGoal();

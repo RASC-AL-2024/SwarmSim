@@ -5,7 +5,8 @@ using RVO;
 using UnityEngine;
 using UnityEditor;
 
-[System.Serializable]
+// If you uncomment these it shits the bed I have no idea why I hate unity
+// [System.Serializable]
 public class Storage
 {
     public double current;
@@ -55,7 +56,7 @@ public class Storage
     }
 }
 
-[System.Serializable]
+// [System.Serializable]
 public class Battery : Storage
 {
     // Capacity is in J
@@ -75,14 +76,13 @@ public abstract class Behaviour : MonoBehaviour
 
 public class BatteryModule : Behaviour
 {
-    public ArticulationBody rootBody;
-    public Battery battery = new Battery(Constants.roverBatteryCapacity);
+    public Battery Battery {get; set;} = new Battery(Constants.roverBatteryCapacity);
+    private ArticulationBody rootBody;
     public Battery? SourceBattery { get; set; } = null;
     public bool alwaysAttach = false;
 
     void Start()
     {
-        battery = new Battery(Constants.roverBatteryCapacity);
         rootBody = GetComponentInParent<ArticulationBody>();
     }
 
@@ -100,14 +100,14 @@ public class BatteryModule : Behaviour
         {
             totalDrain += Constants.servoIdleDrain + (velocity > 0.01 ? Constants.servoActiveDrain : 0);
         }
-        battery.remove(totalDrain, Time.deltaTime);
+        Battery.remove(totalDrain, Time.deltaTime);
 
-        if (SourceBattery != null && !battery.full())
+        if (SourceBattery != null && !Battery.full())
         {
-            SourceBattery.transferTo(battery, Constants.chargeRate, Time.deltaTime);
+            SourceBattery.transferTo(Battery, Constants.chargeRate, Time.deltaTime);
         }
 
-        if (SourceBattery != null && battery.full() && !alwaysAttach)
+        if (SourceBattery != null && Battery.full() && !alwaysAttach)
         {
             SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.FinishedCharging(GetComponentInParent<GameAgent>()));
             SourceBattery = null;
@@ -117,27 +117,16 @@ public class BatteryModule : Behaviour
 
 public class LoadModule : Behaviour
 {
-    public Storage dirt = new Storage(Constants.roverCarryingCapacity, 0);
+    public Storage Dirt { get; set; } = new Storage(Constants.roverCarryingCapacity, 0);
 
     private Miner miner = null; // maybe null
-    private Storage? unload = null;
-    public Storage? Unload
-    {
-        get
-        {
-            return unload;
-        }
-        set
-        {
-            Debug.LogFormat("Set unload to {0}", value);
-            unload = value;
-        }
-    }
+    private Storage unload = null;
+    public Storage Unload {get; set; } = null;
 
     public void setMiner(Miner miner)
     {
         this.miner = miner;
-        this.miner.RegisterRover(GetComponentInParent<GameAgent>().bucket, dirt);
+        this.miner.RegisterRover(GetComponentInParent<GameAgent>().bucket, Dirt);
     }
 
     public override void Cancel()
@@ -148,23 +137,23 @@ public class LoadModule : Behaviour
     void Update()
     {
         // Unregister us from the miner if we are full
-        if (miner != null && (miner.broken || dirt.full()))
+        if (miner != null && (miner.broken || Dirt.full()))
         {
             miner.UnregisterRover(GetComponentInParent<GameAgent>().bucket);
-            SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.FinishedLoading(GetComponentInParent<GameAgent>()));
             miner = null;
+            SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.FinishedLoading(GetComponentInParent<GameAgent>()));
         }
 
         // We are done
-        if (Unload != null && dirt.empty())
+        if (Unload != null && Dirt.empty())
         {
-            SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.FinishedUnloading(GetComponentInParent<GameAgent>()));
             Unload = null;
+            SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.FinishedUnloading(GetComponentInParent<GameAgent>()));
         }
 
         if (Unload != null)
         {
-            dirt.transferTo(Unload, Constants.dirtTransferRate, Time.deltaTime);
+            Dirt.transferTo(Unload, Constants.dirtTransferRate, Time.deltaTime);
         }
     }
 }
@@ -190,9 +179,10 @@ public class RepairModule : Behaviour
         // We have finished the repair
         if (module != null && Time.time >= expiry)
         {
-            SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.FinishedRepairing(module));
-            module.fix();
+            var oldModule = module;
             module = null;
+            SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.FinishedRepairing(oldModule));
+            oldModule.fix();
         }
     }
 }
@@ -339,7 +329,7 @@ public class GameAgent : FailableModule
     void Update()
     {
         // Do nothing if we are broken
-        if (broken || batteryModule.battery.empty())
+        if (broken || batteryModule.Battery.empty())
         {
             Velocity zero_velocity = new Velocity(0, 0);
             updateWheels(zero_velocity);
@@ -351,8 +341,8 @@ public class GameAgent : FailableModule
         // Check arrival
         if (goalPosition.HasValue && Vector2.Distance(goalPosition.Value, get2dPosition()) < 2f)
         {
-            SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.Arrived(this));
             goalPosition = null;
+            SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.Arrived(this));
         }
 
         if (goalPosition.HasValue)

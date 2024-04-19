@@ -36,7 +36,7 @@ public class Miner : FailableModule
 
     public bool RegisterRover(Transform container, Storage roverStorage)
     {
-        if (broken || batteryModule.battery.empty())
+        if (broken || batteryModule.Battery.empty())
             return false;
 
         Debug.LogFormat("{0}, registered: {1}", name, container);
@@ -56,7 +56,7 @@ public class Miner : FailableModule
     {
         bool converged = status.Step();
 
-        if (broken || batteryModule.battery.empty())
+        if (broken || batteryModule.Battery.empty())
             return;
 
         // The rover left
