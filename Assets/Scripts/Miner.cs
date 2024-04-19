@@ -26,7 +26,10 @@ public class Miner : FailableModule
         status = new IKStatus(GetComponent<InverseKinematics>());
         resourcesLoaded = new Dictionary<Transform, Storage>();
 
+        // Always draw directly from central battery
         batteryModule = gameObject.AddComponent<BatteryModule>();
+        batteryModule.alwaysAttach = true;
+        batteryModule.SourceBattery = SingletonBehaviour<Planner>.Instance.resources.Battery;
 
         SingletonBehaviour<Planner>.Instance.registerMiner(this);
     }

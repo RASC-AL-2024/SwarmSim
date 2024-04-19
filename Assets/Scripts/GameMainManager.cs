@@ -1,7 +1,4 @@
-﻿#define USE_PLANNER
-
-using System.IO;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using RVO;
 using UnityEngine;
@@ -31,13 +28,9 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
     // Just poll this lol
     public Transform impact = null;
 
-    private StreamWriter csvWriter;
-
     void Start()
     {
         Time.timeScale = time_scale;
-
-        csvWriter = new StreamWriter("resourceData.csv", true);
 
         Simulator.Instance.setTimeStep(0.25f);
         Simulator.Instance.setAgentDefaults(10.0f, 10, 5.0f, 5.0f, 1.5f, 2.0f, new Vector2(0.0f, 0.0f));
@@ -47,38 +40,6 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
         // Maps broken module to rover currently repairing it
         brokenModules = new Dictionary<FailableModule, bool>();
 
-        StartCoroutine(logResource());
-
-#if USE_PLANNER
-        udp_socket.OnPlannerInput += ProcessPlannerInput;
-        StartCoroutine(sendStateToPlanner());
-#endif
-    }
-
-    IEnumerator logResource()
-    {
-        while (true)
-        {
-            csvWriter.WriteLine(totalResources.ToString());
-            csvWriter.Flush();
-            yield return new WaitForSeconds(60f);
-        }
-    }
-
-    IEnumerator sendStateToPlanner()
-    {
-        yield return new WaitForSeconds(1f);
-        while (true)
-        {
-            string output_string = "";
-            udp_socket.SendData(output_string);
-            yield return new WaitForSeconds(planner_update_freq);
-        }
-    }
-
-    private void ProcessPlannerInput(string planner_input)
-    {
-        // PlannerInterface.applyInputs(rovers, planner_input);
     }
 
     private void Update()

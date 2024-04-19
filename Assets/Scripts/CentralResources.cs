@@ -1,21 +1,34 @@
 using UnityEngine;
+using System.Collections;
+using System.IO;
 
 public class CentralResources : MonoBehaviour
 {
-    public Battery battery = new Battery(Constants.centralBatteryCapacity);
+    // I hate C#
+    public Battery Battery { get; set; } = new Battery(Constants.centralBatteryCapacity, Constants.centralBatteryCapacity / 2);
 
-    public Storage dirt = new Storage(Constants.centralDirtCapacity, 0);
-    public Storage powder = new Storage(Constants.centralDirtCapacity, 0);
-    public Storage printMaterial = new Storage(Constants.centralDirtCapacity, 0);
-    public Storage spareModules = new Storage(Constants.spareModuleCapacity, 0);
+    public Storage Dirt { get; set; } = new Storage(Constants.centralDirtCapacity, 0);
+    public Storage Powder { get; set; } = new Storage(Constants.centralDirtCapacity, 0);
+    public Storage PrintMaterial { get; set; } = new Storage(Constants.centralDirtCapacity, 0);
+    public Storage SpareModules { get; set; } = new Storage(Constants.spareModuleCapacity, 0);
 
     void Start()
     {
-        battery = new Battery(Constants.centralBatteryCapacity);
-        dirt = new Storage(Constants.centralDirtCapacity, 0);
-        powder = new Storage(Constants.centralDirtCapacity, 0);
-        printMaterial = new Storage(Constants.centralDirtCapacity, 0);
-        spareModules = new Storage(Constants.spareModuleCapacity, 0);
+        StartCoroutine(Log());
+    }
+
+    IEnumerator Log()
+    {
+        var writer = new StreamWriter("resourceData.csv");
+        writer.WriteLine("time,battery,spareModules");
+        var nextTime = Time.time;
+        while (true)
+        {
+            nextTime += 10;
+            writer.WriteLine("{0},{1},{2}", Time.time, Battery.current, SpareModules.current);
+            writer.Flush();
+            yield return new WaitForSeconds(nextTime - Time.time);
+        }
     }
 
     void Update()
@@ -23,27 +36,24 @@ public class CentralResources : MonoBehaviour
         // Solar power needs a sine weighting
         float dayCycle = Mathf.Sin(Time.time / Constants.dayLength * 2 * Mathf.PI);
         if (dayCycle > 0)
-            battery.add(Constants.peakSolarPower * dayCycle, Time.deltaTime);
+            Battery.add(Constants.peakSolarPower * dayCycle, Time.deltaTime);
 
-        if (!dirt.empty() && !powder.full())
+        if (!Dirt.empty() && !Powder.full())
         {
-            float transferAmount = Constants.powderizeYield * dirt.remove(Constants.powderizeRate, Time.deltaTime);
-            powder.add(transferAmount);
-            battery.remove(Constants.powderizeDrain, Time.deltaTime);
+            Dirt.transferTo(Powder, Constants.powderizeRate, Time.deltaTime, Constants.powderizeYield);
+            Battery.remove(Constants.powderizeDrain, Time.deltaTime);
         }
 
-        if (!powder.empty() && !printMaterial.full())
+        if (!Powder.empty() && !PrintMaterial.full())
         {
-            float transferAmount = Constants.heatYield * powder.remove(Constants.heatRate, Time.deltaTime);
-            printMaterial.add(transferAmount);
-            battery.remove(Constants.heatDrain, Time.deltaTime);
+            Powder.transferTo(PrintMaterial, Constants.heatRate, Time.deltaTime, Constants.heatYield);
+            Battery.remove(Constants.heatDrain, Time.deltaTime);
         }
 
-        if (!printMaterial.empty() && !spareModules.full())
+        if (!PrintMaterial.empty() && !SpareModules.full())
         {
-            float transferAmount = printMaterial.remove(Constants.printRate, Time.deltaTime) / Constants.moduleMass;
-            spareModules.add(transferAmount);
-            battery.remove(Constants.printDrain, Time.deltaTime);
+            PrintMaterial.transferTo(SpareModules, Constants.printRate, Time.deltaTime, 1 / Constants.moduleMass);
+            Battery.remove(Constants.printDrain, Time.deltaTime);
         }
     }
 }
