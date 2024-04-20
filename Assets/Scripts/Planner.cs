@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 // Compiler gets pissed off without this
 namespace System.Runtime.CompilerServices
@@ -12,10 +13,10 @@ public class Planner : SingletonBehaviour<Planner>
     public Transform processingStation;
     public CentralResources resources;
 
-    private List<GameAgent> gameAgents = new List<GameAgent>();
+    private List<GameAgent> rovers = new List<GameAgent>();
     private List<Miner> miners = new List<Miner>();
     private Dictionary<GameAgent, Goal> goals = new Dictionary<GameAgent, Goal>();
-    private Dictionary<FailableModule, GameAgent> broken = new Dictionary<FailableModule, GameAgent>();
+    private List<FailableModule> broken = new List<FailableModule>();
 
     public abstract record Goal;
     public record LoadGoal(Miner miner) : Goal;
@@ -33,7 +34,7 @@ public class Planner : SingletonBehaviour<Planner>
 
     public void registerRover(GameAgent rover)
     {
-        gameAgents.Add(rover);
+        rovers.Add(rover);
         dispatch(rover);
 
         Debug.LogFormat("Registered rover: {0}", rover.sid);
@@ -44,6 +45,11 @@ public class Planner : SingletonBehaviour<Planner>
         miners.Add(miner);
 
         Debug.LogFormat("Registered miner: {0}", miner.name);
+    }
+
+    private GameAgent roverForRepair(FailableModule module)
+    {
+        return goals.FirstOrDefault(kv => kv.Value is RepairGoal rg && rg.broken == module).Key;
     }
 
     public void handleEvent(Event e)
@@ -61,7 +67,7 @@ public class Planner : SingletonBehaviour<Planner>
                 break;
 
             case FinishedRepairing a:
-                var rover = broken[a.module];
+                var rover = roverForRepair(a.module);
                 Debug.LogFormat("Rover {0} finished repairing", rover.sid);
                 dispatch(rover);
                 broken.Remove(a.module);
@@ -79,32 +85,22 @@ public class Planner : SingletonBehaviour<Planner>
 
             case Broken a:
                 Debug.LogFormat("Module {0} broken", a.module.name);
-                broken.Add(a.module, null);
+                broken.Add(a.module);
                 break;
         }
     }
 
     public void dispatch(GameAgent rover)
     {
-        var batteryModule = rover.GetComponentInParent<BatteryModule>();
-
-        if (batteryModule.battery.isLow())
+        if (resources.SpareModules.current >= 1 && broken.Count > 0)
         {
-            goals[rover] = new ChargeGoal();
-            rover.setGoalPosition(new Vector2(processingStation.position.x, processingStation.position.z));
-            return;
-        }
-
-        if (resources.spareModules.current >= 1 && broken.Count > 0)
-        {
-            foreach (var module in broken.Keys)
+            foreach (var module in broken)
             {
                 // A rover has already been dispatched
-                if (broken[module] != null)
+                if (roverForRepair(module) != null)
                     continue;
 
-                resources.spareModules.remove(1f);
-                broken[module] = rover;
+                resources.SpareModules.remove(1f);
                 goals[rover] = new RepairGoal(module);
                 rover.setGoalPosition(new Vector2(module.realCenter.x, module.realCenter.z));
                 return;
@@ -133,12 +129,32 @@ public class Planner : SingletonBehaviour<Planner>
                 rover.GetComponentInParent<RepairModule>().setRepairModule(g.broken);
                 break;
             case ChargeGoal:
-                rover.GetComponentInParent<BatteryModule>().sourceBattery = resources.battery;
+                rover.GetComponentInParent<BatteryModule>().SourceBattery = resources.Battery;
                 break;
             case UnloadGoal:
-                Debug.LogFormat("Set unload");
-                rover.GetComponentInParent<LoadModule>().unload = resources.dirt;
+                rover.GetComponentInParent<LoadModule>().Unload = resources.Dirt;
                 break;
+        }
+    }
+
+    public void cancelGoal(GameAgent rover)
+    {
+        foreach (var behaviour in rover.GetComponents<Behaviour>())
+            behaviour.Cancel();
+        Debug.LogFormat("Cancelled goal for {0}", rover.sid);
+    }
+
+    void Update()
+    {
+        foreach (var rover in rovers)
+        {
+            if (rover.GetComponentInParent<BatteryModule>().Battery.isLow() && !(goals[rover] is ChargeGoal))
+            {
+                cancelGoal(rover);
+                goals[rover] = new ChargeGoal();
+                rover.setGoalPosition(new Vector2(processingStation.position.x, processingStation.position.z));
+                return;
+            }
         }
     }
 }

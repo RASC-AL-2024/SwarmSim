@@ -11,9 +11,9 @@ public class Miner : FailableModule
     [SerializeField]
     public Transform center;
 
-    private List<Transform> waitingRovers;
+    private List<Transform> waitingRovers = new List<Transform>();
     private IKStatus status;
-    private Dictionary<Transform, Storage> resourcesLoaded;
+    private Dictionary<Transform, Storage> resourcesLoaded = new Dictionary<Transform, Storage>();
 
     private Transform activeLoading;
 
@@ -22,18 +22,19 @@ public class Miner : FailableModule
     void Start()
     {
         initFailable();
-        waitingRovers = new List<Transform>();
         status = new IKStatus(GetComponent<InverseKinematics>());
-        resourcesLoaded = new Dictionary<Transform, Storage>();
 
+        // Always draw directly from central battery
         batteryModule = gameObject.AddComponent<BatteryModule>();
+        batteryModule.alwaysAttach = true;
+        batteryModule.SourceBattery = SingletonBehaviour<Planner>.Instance.resources.Battery;
 
         SingletonBehaviour<Planner>.Instance.registerMiner(this);
     }
 
     public bool RegisterRover(Transform container, Storage roverStorage)
     {
-        if (broken || batteryModule.battery.empty())
+        if (broken || batteryModule.Battery.empty())
             return false;
 
         Debug.LogFormat("{0}, registered: {1}", name, container);
@@ -53,7 +54,7 @@ public class Miner : FailableModule
     {
         bool converged = status.Step();
 
-        if (broken || batteryModule.battery.empty())
+        if (broken || batteryModule.Battery.empty())
             return;
 
         // The rover left
