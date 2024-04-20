@@ -47,7 +47,7 @@ public class Planner : SingletonBehaviour<Planner>
         Debug.LogFormat("Registered miner: {0}", miner.name);
     }
 
-    private GameAgent? roverForRepair(FailableModule module)
+    private GameAgent roverForRepair(FailableModule module)
     {
         return goals.FirstOrDefault(kv => kv.Value is RepairGoal rg && rg.broken == module).Key;
     }

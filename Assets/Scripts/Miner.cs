@@ -11,9 +11,9 @@ public class Miner : FailableModule
     [SerializeField]
     public Transform center;
 
-    private List<Transform> waitingRovers;
+    private List<Transform> waitingRovers = new List<Transform>();
     private IKStatus status;
-    private Dictionary<Transform, Storage> resourcesLoaded;
+    private Dictionary<Transform, Storage> resourcesLoaded = new Dictionary<Transform, Storage>();
 
     private Transform activeLoading;
 
@@ -22,9 +22,7 @@ public class Miner : FailableModule
     void Start()
     {
         initFailable();
-        waitingRovers = new List<Transform>();
         status = new IKStatus(GetComponent<InverseKinematics>());
-        resourcesLoaded = new Dictionary<Transform, Storage>();
 
         // Always draw directly from central battery
         batteryModule = gameObject.AddComponent<BatteryModule>();

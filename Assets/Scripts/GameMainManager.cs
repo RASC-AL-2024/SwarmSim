@@ -14,8 +14,6 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
     [SerializeField]
     float time_scale = 10f;
 
-    float planner_update_freq = 1f;
-
     [SerializeField]
     UdpSocket udp_socket;
 

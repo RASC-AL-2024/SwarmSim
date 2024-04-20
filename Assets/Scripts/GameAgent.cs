@@ -76,9 +76,9 @@ public abstract class Behaviour : MonoBehaviour
 
 public class BatteryModule : Behaviour
 {
-    public Battery Battery {get; set;} = new Battery(Constants.roverBatteryCapacity);
+    public Battery Battery { get; set; } = new Battery(Constants.roverBatteryCapacity);
     private ArticulationBody rootBody;
-    public Battery? SourceBattery { get; set; } = null;
+    public Battery SourceBattery { get; set; } = null;
     public bool alwaysAttach = false;
 
     void Start()
@@ -120,8 +120,7 @@ public class LoadModule : Behaviour
     public Storage Dirt { get; set; } = new Storage(Constants.roverCarryingCapacity, 0);
 
     private Miner miner = null; // maybe null
-    private Storage unload = null;
-    public Storage Unload {get; set; } = null;
+    public Storage Unload { get; set; } = null;
 
     public void setMiner(Miner miner)
     {
@@ -131,6 +130,8 @@ public class LoadModule : Behaviour
 
     public override void Cancel()
     {
+        if (miner != null)
+            miner.UnregisterRover(GetComponentInParent<GameAgent>().bucket);
         miner = null;
     }
 
@@ -139,8 +140,7 @@ public class LoadModule : Behaviour
         // Unregister us from the miner if we are full
         if (miner != null && (miner.broken || Dirt.full()))
         {
-            miner.UnregisterRover(GetComponentInParent<GameAgent>().bucket);
-            miner = null;
+            Cancel();
             SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.FinishedLoading(GetComponentInParent<GameAgent>()));
         }
 
@@ -339,7 +339,7 @@ public class GameAgent : FailableModule
         }
 
         // Check arrival
-        if (goalPosition.HasValue && Vector2.Distance(goalPosition.Value, get2dPosition()) < 2f)
+        if (goalPosition.HasValue && Vector2.Distance(goalPosition.Value, get2dPosition()) < 3f)
         {
             goalPosition = null;
             SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.Arrived(this));
