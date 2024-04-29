@@ -81,7 +81,7 @@ public class InverseKinematics : MonoBehaviour
             float gradient = 0f;
             for (int j = 0; j < 3; ++j)
             {
-                gradient += Time.deltaTime * error[j] * jacobian[jacobian.rows - 6 + j, i - 1] * 60;
+                gradient += Time.deltaTime * error[j] * jacobian[jacobian.rows - 6 + j, i - 1];
             }
 
             var drive = bodies[i].xDrive;

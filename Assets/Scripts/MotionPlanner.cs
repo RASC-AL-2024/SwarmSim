@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using RVO;
 using System;
@@ -9,7 +7,7 @@ public class MotionPlanner
     private int sid;
     private System.Random m_random;
     private Transform transform;
-    
+
     public MotionPlanner(int t_sid, Transform t_transform)
     {
         sid = t_sid;
@@ -97,14 +95,14 @@ public class MotionPlanner
         {
             Vector3 delta_vec = new Vector3(vel.x, 0, vel.y);
             angular_velocity = 0f;
-            linear_velocity = 1f;
+            linear_velocity = Constants.roverSpeed;
         }
         else
         {
             Quaternion new_rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 100f * Time.deltaTime);
             Quaternion from_rotation = transform.rotation;
-            angular_velocity = getAngularVelocity(from_rotation, new_rotation);
-            linear_velocity = 0.5f;
+            angular_velocity = getAngularVelocity(from_rotation, new_rotation) * Constants.roverSpeed;
+            linear_velocity = Constants.roverSpeed / 2;
         }
         return new Velocity(linear_velocity, angular_velocity);
     }

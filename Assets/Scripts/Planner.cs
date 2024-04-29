@@ -92,6 +92,12 @@ public class Planner : SingletonBehaviour<Planner>
 
     public void dispatch(GameAgent rover)
     {
+        if (!rover.GetComponentInParent<LoadModule>().Dirt.empty())
+        {
+            dispatchUnload(rover);
+            return;
+        }
+
         if (resources.SpareModules.current >= 1 && broken.Count > 0)
         {
             foreach (var module in broken)
@@ -153,6 +159,7 @@ public class Planner : SingletonBehaviour<Planner>
                 cancelGoal(rover);
                 goals[rover] = new ChargeGoal();
                 rover.setGoalPosition(new Vector2(processingStation.position.x, processingStation.position.z));
+                Debug.LogFormat("Rover {0} moving to charge", rover.sid);
                 return;
             }
         }

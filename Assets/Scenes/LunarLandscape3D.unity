@@ -406,7 +406,7 @@ MonoBehaviour:
   agentPrefab: {fileID: 3972119860936325249, guid: 3fbaa6e08ce229d4c93d23965d6bd3b8, type: 3}
   n_rovers: 3
   spawn_radius: 10
-  time_scale: 10
+  time_scale: 50
   udp_socket: {fileID: 298185384}
   totalResources: 1000
   impact: {fileID: 0}
@@ -695,15 +695,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8952896914246826171, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.6541033
+      value: -4.85
       objectReference: {fileID: 0}
     - target: {fileID: 8952896914246826171, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 18.330908
+      value: 15.44
       objectReference: {fileID: 0}
     - target: {fileID: 8952896914246826171, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -15.191105
+      value: -44.6
       objectReference: {fileID: 0}
     - target: {fileID: 8952896914246826171, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_LocalRotation.w

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using RVO;
 using UnityEngine;
 using UnityEditor;
@@ -84,6 +85,16 @@ public class BatteryModule : Behaviour
     void Start()
     {
         rootBody = GetComponentInParent<ArticulationBody>();
+        StartCoroutine(Log());
+    }
+
+    IEnumerator Log()
+    {
+        while (true)
+        {
+            Debug.LogFormat("Rover {0} battery: {1}%", GetComponentInParent<GameAgent>().sid, 100f * (Battery.current / Battery.capacity));
+            yield return new WaitForSeconds(2048);
+        }
     }
 
     public override void Cancel()
@@ -98,8 +109,17 @@ public class BatteryModule : Behaviour
         float totalDrain = 0f;
         foreach (var velocity in velocities)
         {
-            totalDrain += Constants.servoIdleDrain + (velocity > 0.01 ? Constants.servoActiveDrain : 0);
+            // velocities includes for non-revolute joints, real joint velocity is never quite 0
+            if (velocity == 0)
+                continue;
+
+            totalDrain += Constants.servoIdleDrain + (Math.Abs(velocity) > 0.01 ? Constants.servoActiveDrain : 0);
         }
+        if (!alwaysAttach && false)
+        {
+            Debug.LogFormat("{0}, {1}, [{2}]", totalDrain, velocities.Count, String.Join(", ", velocities.Select(n => n.ToString())));
+        }
+
         Battery.remove(totalDrain, Time.deltaTime);
 
         if (SourceBattery != null && !Battery.full())
@@ -218,12 +238,12 @@ public class FailableModule : MonoBehaviour
     {
         while (true)
         {
+            yield return new WaitForSeconds(Constants.maybeFailInterval);
+
             if (UnityEngine.Random.Range(0f, 1f) <= Constants.failureChance)
             {
                 fail();
             }
-
-            yield return new WaitForSeconds(Constants.maybeFailInterval);
         }
     }
 };
