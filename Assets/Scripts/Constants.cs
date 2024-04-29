@@ -7,7 +7,7 @@ public static class Constants
     public const float roverBatteryCapacity = 1e4f; // J
     public const float servoIdleDrain = 0.1f; // W, how much each servo drains when idle
     public const float servoActiveDrain = 0.5f; // W, how much a each servo drains when it moves (added to idle)
-    public const float chargeRate = 0.7f; // W, rate at which rover batteries charge
+    public const float chargeRate = 5f; // W, rate at which rover batteries charge
     public const float lowBatteryThreshold = 0.5f; // 20%, when we go back to charge
 
     // Raw material
