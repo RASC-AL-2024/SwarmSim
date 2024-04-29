@@ -406,7 +406,7 @@ MonoBehaviour:
   agentPrefab: {fileID: 3972119860936325249, guid: 3fbaa6e08ce229d4c93d23965d6bd3b8, type: 3}
   n_rovers: 3
   spawn_radius: 10
-  time_scale: 5
+  time_scale: 10
   udp_socket: {fileID: 298185384}
   totalResources: 1000
   impact: {fileID: 0}
@@ -1091,21 +1091,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 967e7d09513c54373b8a40805c337619, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  battery:
-    current: 1000000
-    capacity: 1000000
-  dirt:
-    current: 0
-    capacity: 1000
-  powder:
-    current: 0
-    capacity: 1000
-  printMaterial:
-    current: 0
-    capacity: 1000
-  spareModules:
-    current: 0
-    capacity: 10
 --- !u!4 &1972631348
 Transform:
   m_ObjectHideFlags: 0

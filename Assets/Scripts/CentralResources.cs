@@ -24,7 +24,7 @@ public class CentralResources : MonoBehaviour
         var nextTime = Time.time;
         while (true)
         {
-            nextTime += 10;
+            nextTime += 60;
             writer.WriteLine("{0},{1},{2}", Time.time, Battery.current, SpareModules.current);
             writer.Flush();
             yield return new WaitForSeconds(nextTime - Time.time);
