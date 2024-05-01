@@ -2,13 +2,14 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct SetServoMessage
 {
     public byte n_servos;
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-    public float[] state_radians;
+    public float[] servo_state;
 }
 
 public interface Command
@@ -26,11 +27,20 @@ public class Arm : MonoBehaviour
     public Vector3 target;
 
     private Serial<SetServoMessage> serial;
+    private ArticulationBody root;
+    private List<float> targets = new List<float>();
 
     void OnEnable()
     {
+        root = GetComponentInParent<ArticulationBody>();
+        root.GetDriveTargets(targets);
+
         serial = Serial<SetServoMessage>.Default();
-        serial.MessageReceived += MessageReceivedHandler;
+        serial.MessageReceived += (_, msg) =>
+        {
+            targets = new List<float>(msg.servo_state.Take(msg.n_servos));
+        };
+
     }
 
     void OnDisable()
@@ -44,9 +54,9 @@ public class Arm : MonoBehaviour
         serial.port.WriteLine(command.Serialize());
     }
 
-    void MessageReceivedHandler(object sender, SetServoMessage message)
+    void Update()
     {
-        Debug.Log($"Got message: [{string.Join(", ", message.state_radians.Select(x => x.ToString()))}]");
+        root.SetDriveTargets(targets);
     }
 }
 
