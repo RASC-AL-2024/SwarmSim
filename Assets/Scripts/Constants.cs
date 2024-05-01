@@ -26,7 +26,7 @@ public static class Constants
     public const float heatDrain = 10; // W
     public const float heatYield = 0.96f; // ratio
 
-    public const float printRate = 0.03; // g/s, printable -> spare module rate
+    public const float printRate = 0.03f; // g/s, printable -> spare module rate
     public const float printDrain = 200; // W
     public const float moduleMass = 300; // g
     public const float spareModuleCapacity = 10; // # spare modules
