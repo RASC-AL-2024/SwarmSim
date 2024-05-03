@@ -1,6 +1,7 @@
 using UnityEngine;
 using RVO;
 using UnityEngine.Assertions;
+using System.Collections.Generic;
 
 public class RoverSpawner
 {
@@ -38,19 +39,24 @@ public class RoverSpawner
         return terrain;
     }
 
-    public static GameAgent[] spawnRovers(GameObject agentPrefab, float spawn_radius, int n_rovers)
+    public static List<GameAgent> spawnRoversFromLander(GameObject agentPrefab, float spawn_radius, int n_rovers)
     {
-        GameAgent[] rovers = new GameAgent[n_rovers];
         GameObject processing_station = getProcessingStation();
-        Terrain terrain = getTerrain();
         Vector3 spawn_center = processing_station.transform.position;
+        return spawnRoversFromLocation(agentPrefab, spawn_center, spawn_radius, n_rovers);
+    }
+
+    public static List<GameAgent> spawnRoversFromLocation(GameObject agentPrefab, Vector3 spawn_center, float spawn_radius, int n_rovers)
+    {
+        List<GameAgent> rovers = new List<GameAgent>(n_rovers);
+        Terrain terrain = getTerrain();
         for (int i = 0; i < n_rovers; i++)
         {
             float angle = i * Mathf.PI * 2 / n_rovers;
             Vector3 position = getRandomSpawnLocation(terrain, spawn_center, spawn_radius, angle);
             GameObject next_instance = CreateAgent(agentPrefab, position);
             GameAgent ga = next_instance.GetComponent<GameAgent>();
-            rovers[i] = ga;
+            rovers.Add(ga);
         }
         return rovers;
     }

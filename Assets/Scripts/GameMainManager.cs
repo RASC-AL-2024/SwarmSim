@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using RVO;
 using UnityEngine;
 
@@ -15,11 +16,14 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
     float time_scale = 10f;
 
     [SerializeField]
+    Planner planner;
+
+    [SerializeField]
     UdpSocket udp_socket;
 
-    GameAgent[] rovers;
+    List<GameAgent> rovers;
 
-    public Dictionary<FailableModule, bool> brokenModules;
+    // public Dictionary<FailableModule, bool> brokenModules;
     public float totalResources = 1000.0f; // roughly grams??
 
     // Only non-null if there is impact
@@ -33,10 +37,10 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
         Simulator.Instance.setTimeStep(0.25f);
         Simulator.Instance.setAgentDefaults(10.0f, 10, 5.0f, 5.0f, 1.5f, 2.0f, new Vector2(0.0f, 0.0f));
 
-        rovers = RoverSpawner.spawnRovers(agentPrefab, spawn_radius, n_rovers);
+        rovers = RoverSpawner.spawnRoversFromLander(agentPrefab, spawn_radius, n_rovers);
 
         // Maps broken module to rover currently repairing it
-        brokenModules = new Dictionary<FailableModule, bool>();
+        // brokenModules = new Dictionary<FailableModule, bool>();
 
     }
 
