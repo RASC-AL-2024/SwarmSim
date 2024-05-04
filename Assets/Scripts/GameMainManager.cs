@@ -19,6 +19,9 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
     Planner planner;
 
     [SerializeField]
+    Transform new_rover_location;
+
+    [SerializeField]
     UdpSocket udp_socket;
 
     List<GameAgent> rovers;
@@ -29,6 +32,8 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
     // Only non-null if there is impact
     // Just poll this lol
     public Transform impact = null;
+
+    private int MIN_MODULES = 2;
 
     void Start()
     {
@@ -44,8 +49,29 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
 
     }
 
+    private bool checkSpareModules()
+    {
+        return planner.resources.SpareModules.current >= MIN_MODULES;
+    }
+
+    private void createNewRover()
+    {
+        planner.resources.SpareModules.remove(MIN_MODULES);
+        List<GameAgent> new_rovers = RoverSpawner.spawnRoversFromLocation(agentPrefab, new_rover_location.position, 1f, 1);
+        rovers.AddRange(new_rovers);
+    }
+
+    private void createNewRobot()
+    {
+        createNewRover();
+    }
+
     private void Update()
     {
+        if (checkSpareModules())
+        {
+            createNewRobot();
+        }
         Simulator.Instance.doStep();
     }
 }
