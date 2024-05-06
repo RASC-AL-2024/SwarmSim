@@ -89,7 +89,7 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
     private void createNewRobot()
     {
         double curr_arm_rover_ratio = (double)n_arms / (double)n_rovers;
-        if(curr_arm_rover_ratio > arm_rover_ratio)
+        if(n_rovers * arm_rover_ratio < n_arms)
         {
             if (checkSpareModules(ROVER_MODULES))
             {
