@@ -174,6 +174,7 @@ public class LoadModule : Behaviour
         if (Unload != null)
         {
             Dirt.transferTo(Unload, Constants.dirtTransferRate, Time.deltaTime);
+            CentralResources.TotalDirt.add(Dirt.capacity); // quick hack because I can't code :(
         }
     }
 }
