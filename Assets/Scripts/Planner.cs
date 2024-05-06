@@ -112,10 +112,13 @@ public class Planner : SingletonBehaviour<Planner>
                 return;
             }
         }
-
-        var miner = miners[UnityEngine.Random.Range(0, miners.Count)];
-        goals[rover] = new LoadGoal(miner);
-        rover.setGoalPosition(new Vector2(miner.center.position.x, miner.center.position.z));
+        
+        if(miners.Count > 0)
+        {
+            var miner = miners[UnityEngine.Random.Range(0, miners.Count)];
+            goals[rover] = new LoadGoal(miner);
+            rover.setGoalPosition(new Vector2(miner.center.position.x, miner.center.position.z));
+        }
     }
 
     public void dispatchUnload(GameAgent rover)

@@ -282,6 +282,7 @@ public class GameAgent : FailableModule
     private float wheel_diameter = 0.336f;
     private float axle_width = 0.60f;
     private float maxwheel_velocity = 2; // rad/s
+    private float min_goal_distance = 5f; // 3
 
     public MotionPlanner motion_planner;
 
@@ -359,7 +360,7 @@ public class GameAgent : FailableModule
         }
 
         // Check arrival
-        if (goalPosition.HasValue && Vector2.Distance(goalPosition.Value, get2dPosition()) < 3f)
+        if (goalPosition.HasValue && Vector2.Distance(goalPosition.Value, get2dPosition()) < min_goal_distance)
         {
             goalPosition = null;
             SingletonBehaviour<Planner>.Instance.handleEvent(new Planner.Arrived(this));
