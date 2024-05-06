@@ -29,12 +29,12 @@ def calculate_positive_deltas(values):
 
     return running_totals
 
-total_spares = calculate_positive_deltas(df['spareModules'])
+# total_spares = calculate_positive_deltas(df['spareModules'])
 
-ax2.plot(df['time'], total_spares, label='Spare Modules', color='green')
-ax2.set_title('Spare Modules Over Time')
+ax2.plot(df['time'], df['totalDirt'], label='Total Dirt', color='green')
+ax2.set_title('Total Dirt Over Time')
 ax2.set_xlabel('Time')
-ax2.set_ylabel('Spare Modules')
+ax2.set_ylabel('Total Dirt')
 ax2.grid(True)
 ax2.legend()
 

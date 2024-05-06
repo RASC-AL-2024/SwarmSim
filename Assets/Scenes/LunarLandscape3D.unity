@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 297098016}
-  m_IndirectSpecularColor: {r: 0.040539697, g: 0.038835242, b: 0.040983073, a: 1}
+  m_IndirectSpecularColor: {r: 0.040559843, g: 0.038807772, b: 0.04100153, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -403,10 +403,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5f8b68b90069dc49b29fb96f2f3ecfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agentPrefab: {fileID: 3972119860936325249, guid: 3fbaa6e08ce229d4c93d23965d6bd3b8, type: 3}
-  n_rovers: 3
-  spawn_radius: 10
+  rover_prefab: {fileID: 3972119860936325249, guid: 3fbaa6e08ce229d4c93d23965d6bd3b8, type: 3}
+  arm_prefab: {fileID: 5067605180232783958, guid: effd7a67f4bdcf043beea82e093362eb, type: 3}
+  n_rovers: 4
+  n_arms: 3
+  rover_spawn_radius: 10
+  arm_spawn_radius: 10
   time_scale: 50
+  planner: {fileID: 1054454506}
+  lander_location: {fileID: 1311026426}
+  new_rover_location: {fileID: 1903826846}
+  new_arm_location: {fileID: 592100034}
   udp_socket: {fileID: 298185384}
   totalResources: 1000
   impact: {fileID: 0}
@@ -425,6 +432,37 @@ MonoBehaviour:
   IP: 127.0.0.1
   rxPort: 8000
   txPort: 8001
+--- !u!1 &592100033
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 592100034}
+  m_Layer: 0
+  m_Name: new_arm_location
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &592100034
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 592100033}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 12.03, y: 3.44, z: -4.77}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &594444624
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -452,6 +490,10 @@ PrefabInstance:
     - target: {fileID: 6011911305506969948, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_Name
       value: Miner1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6011911305506969948, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8706481478475118255, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: target
@@ -540,7 +582,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6011911305506969948, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8706481478475118255, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: target
@@ -679,7 +721,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6011911305506969948, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8706481478475118255, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: target
@@ -1056,6 +1098,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 231589105}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1903826845
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1903826846}
+  m_Layer: 0
+  m_Name: new_rover_location
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1903826846
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1903826845}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -26, y: -7.71, z: -23}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1961218220 stripped
 Transform:
@@ -1613,3 +1686,5 @@ SceneRoots:
   - {fileID: 2123016603}
   - {fileID: 1972631348}
   - {fileID: 1054454507}
+  - {fileID: 1903826846}
+  - {fileID: 592100034}
