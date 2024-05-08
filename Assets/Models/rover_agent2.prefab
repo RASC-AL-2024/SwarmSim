@@ -210,7 +210,7 @@ GameObject:
   - component: {fileID: 744724713996362137}
   - component: {fileID: 5325451267084303097}
   - component: {fileID: 7466410776216979849}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: rover - wheel-5 wheel tred-2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -314,10 +314,10 @@ SphereCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -338,7 +338,7 @@ GameObject:
   - component: {fileID: 2143162280302170208}
   - component: {fileID: 7354906512679215720}
   - component: {fileID: 3599960195567720631}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: rover - wheel-1 wheel tred-2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -442,10 +442,10 @@ SphereCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -757,11 +757,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89259aa854c02884d9acf21195df0dfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  realCenter: {x: 0, y: 0, z: 0}
+  broken: 0
   sid: -1
-  miners: []
-  processingStation: {fileID: 0}
-  miningDuration: 100
-  processingDuration: 25
   bucket: {fileID: 7634925230287181640}
   leftWheels:
   - {fileID: 1841802601659224153}
@@ -769,7 +767,6 @@ MonoBehaviour:
   rightWheels:
   - {fileID: 4706382072133945856}
   - {fileID: 8757903452755457979}
-  lowBattery: 20
 --- !u!1 &4103385863711732518
 GameObject:
   m_ObjectHideFlags: 0
@@ -966,7 +963,7 @@ GameObject:
   - component: {fileID: 3339720083854824942}
   - component: {fileID: 4964348606514556537}
   - component: {fileID: 446814039976725197}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: rover - wheel-2 wheel tred-2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1070,10 +1067,10 @@ SphereCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -1260,7 +1257,7 @@ GameObject:
   - component: {fileID: 3468281264089668466}
   - component: {fileID: 4783051306624241015}
   - component: {fileID: 7469971596321211034}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: rover - wheel-6 wheel tred-2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1364,10 +1361,10 @@ SphereCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0

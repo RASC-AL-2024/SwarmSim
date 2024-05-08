@@ -11,18 +11,18 @@ public class Miner : FailableModule
     [SerializeField]
     public Transform center;
 
-    private List<Transform> waitingRovers = new List<Transform>();
-    private IKStatus status;
+    public List<Transform> waitingRovers = new List<Transform>(); // change back to private
+    private IKStatusAbstract status;
     private Dictionary<Transform, Storage> resourcesLoaded = new Dictionary<Transform, Storage>();
 
-    private Transform activeLoading;
+    public Transform activeLoading; // change back to private
 
     private BatteryModule batteryModule;
 
     void Start()
     {
         initFailable();
-        status = new IKStatus(GetComponent<InverseKinematics>());
+        status = IKStatusFactory.getIKStatus(GetComponent<InverseKinematics>(), Constants.is_fast); //new IKStatus(GetComponent<InverseKinematics>());
 
         // Always draw directly from central battery
         batteryModule = gameObject.AddComponent<BatteryModule>();

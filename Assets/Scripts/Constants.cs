@@ -37,6 +37,8 @@ public static class Constants
     public const float failureChance = 0f;//0.005f; // probability of failing
 
     public const float roverSpeed = 0.05f; // m/s (curiosity is like 0.04)
+
+    public const bool is_fast = true; // disables RVO, and arm animations
 }
 
 // 0.01 speed + 0.5 servo active drain gives like 250 W/m (bad)

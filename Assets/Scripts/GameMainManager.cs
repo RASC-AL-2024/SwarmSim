@@ -59,6 +59,7 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
 
         Simulator.Instance.setTimeStep(0.25f);
         Simulator.Instance.setAgentDefaults(10.0f, 10, 5.0f, 5.0f, 1.5f, 2.0f, new Vector2(0.0f, 0.0f));
+        Simulator.is_fast = Constants.is_fast;
 
         RoverSpawner.spawnRobots(arm_prefab, new_arm_location.position, n_arms, arm_spawn_radius);
         RoverSpawner.spawnRobots(rover_prefab, lander_location.position, n_rovers, rover_spawn_radius);

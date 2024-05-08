@@ -80,7 +80,10 @@ namespace RVO
             {
                 for (int index = start_; index < end_; ++index)
                 {
-                    Simulator.Instance.agents_[index].computeNeighbors();
+                    if (!is_fast)
+                    {
+                        Simulator.Instance.agents_[index].computeNeighbors();
+                    }
                     Simulator.Instance.agents_[index].computeNewVelocity();
                 }
                 doneEvent_.Set();
@@ -118,6 +121,8 @@ namespace RVO
         private int numWorkers_;
         private int workerAgentCount_;
         private float globalTime_;
+
+        public static bool is_fast = false;
 
         public static Simulator Instance
         {
@@ -362,8 +367,10 @@ namespace RVO
                     workers_[block].config(block * getNumAgents() / workers_.Length, (block + 1) * getNumAgents() / workers_.Length);
                 }
             }
-
-            kdTree_.buildAgentTree();
+            if (!is_fast)
+            {
+                kdTree_.buildAgentTree();
+            }
 
             for (int block = 0; block < workers_.Length; ++block)
             {

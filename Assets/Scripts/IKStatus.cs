@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class MovingAverage
 {
@@ -29,7 +30,41 @@ public class MovingAverage
     }
 }
 
-public class IKStatus
+public interface IKStatusAbstract
+{
+    public abstract void Target(Transform target);
+    public abstract bool Step();
+}
+
+public static class IKStatusFactory
+{
+    public static IKStatusAbstract getIKStatus(InverseKinematics ik, bool is_fast)
+    {
+        if (is_fast)
+        {
+            return new IKStatusFast();
+        }
+        else
+        {
+            return new IKStatus(ik);
+        }
+    }
+}
+
+public class IKStatusFast : IKStatusAbstract
+{
+    public void Target(Transform target)
+    {
+        // noop
+    }
+
+    public bool Step()
+    {
+        return true;
+    }
+}
+
+public class IKStatus : IKStatusAbstract
 {
     InverseKinematics ik;
     MovingAverage errorChange;
