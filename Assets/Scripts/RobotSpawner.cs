@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System;
 using static UnityEditor.PlayerSettings;
 
-public class RoverSpawner
+public class RobotSpawner
 {
     private static void createRobot(GameObject agentPrefab, Vector3 agent_pos)
     {

@@ -15,14 +15,14 @@ public class Miner : FailableModule
     private IKStatusAbstract status;
     private Dictionary<Transform, Storage> resourcesLoaded = new Dictionary<Transform, Storage>();
 
-    public Transform activeLoading; // change back to private
+    private Transform activeLoading;
 
     private BatteryModule batteryModule;
 
     void Start()
     {
         initFailable();
-        status = IKStatusFactory.getIKStatus(GetComponent<InverseKinematics>(), Constants.is_fast); //new IKStatus(GetComponent<InverseKinematics>());
+        status = IKStatusFactory.getIKStatus(GetComponent<InverseKinematics>(), Constants.isFast);
 
         // Always draw directly from central battery
         batteryModule = gameObject.AddComponent<BatteryModule>();

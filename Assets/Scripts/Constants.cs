@@ -38,7 +38,13 @@ public static class Constants
 
     public const float roverSpeed = 0.05f; // m/s (curiosity is like 0.04)
 
-    public const bool is_fast = true; // disables RVO, and arm animations
+    // Fast-mode
+    public const bool isFast = true; // disables RVO, and arm animations
+
+    // Robot creation
+    public const double armRoverRatio = 1;
+    public const int NarmModules = 2;
+    public const int NroverModules = 2;
 }
 
 // 0.01 speed + 0.5 servo active drain gives like 250 W/m (bad)
