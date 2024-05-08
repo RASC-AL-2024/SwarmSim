@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 // Compiler gets pissed off without this
 namespace System.Runtime.CompilerServices
@@ -90,6 +91,33 @@ public class Planner : SingletonBehaviour<Planner>
         }
     }
 
+    int comp(Miner a, Miner b)
+    {
+        return 1;
+    }
+
+    private Miner findMiner()
+    {
+        List<int> weights = miners.Select(x => 1 / (x.waitingRovers.Count()+1)).ToList();
+        double weight_sum = (double)weights.Sum();
+
+        List<double> norm_weights = weights.Select(x => (double)x / weight_sum).ToList();
+
+        System.Random rand = new System.Random();
+        double randomNumber = rand.NextDouble();
+        double cum = 0.0;
+
+        for (int i = 0; i < norm_weights.Count; i++)
+        {
+            cum += norm_weights[i];
+            if (randomNumber < cum)
+            {
+                return miners[i];
+            }
+        }
+        throw new Exception("unable to sample miner");
+    }
+
     public void dispatch(GameAgent rover)
     {
         if (!rover.GetComponentInParent<LoadModule>().Dirt.empty())
@@ -115,7 +143,8 @@ public class Planner : SingletonBehaviour<Planner>
         
         if(miners.Count > 0)
         {
-            var miner = miners[UnityEngine.Random.Range(0, miners.Count)];
+
+            var miner = findMiner();
             goals[rover] = new LoadGoal(miner);
             rover.setGoalPosition(new Vector2(miner.center.position.x, miner.center.position.z));
         }
