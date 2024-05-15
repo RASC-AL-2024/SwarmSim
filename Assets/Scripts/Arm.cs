@@ -58,8 +58,8 @@ public class Arm : MonoBehaviour
     private ArticulationBody root;
     private List<float> targets = new List<float> { 0, 0, 0, 0 };
 
-    // Base turns counter-clockwise around +y
-    private static float[] directionMultipliers = { 1, 1, -1, -1 };
+    // Base turns counter-clockwise around +y, fabrik seems to give cursed directions???
+    private static float[] directionMultipliers = { 1, -1, -1, -1 };
 
     void OnEnable()
     {
