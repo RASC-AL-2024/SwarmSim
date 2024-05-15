@@ -1,28 +1,10 @@
 using System.IO.Ports;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class Serde
-{
-    public static T FromByteArray<T>(byte[] bytes) where T : struct
-    {
-        GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-        try
-        {
-            System.IntPtr ptr = handle.AddrOfPinnedObject();
-            return (T)Marshal.PtrToStructure(ptr, typeof(T));
-        }
-        finally
-        {
-            handle.Free();
-        }
-    }
-}
 
 public class Serial<T> : IDisposable
 {

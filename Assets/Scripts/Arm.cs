@@ -1,17 +1,8 @@
 using UnityEngine;
 using UnityEditor;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System;
 using System.Linq;
-
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-public struct SetServoMessage2
-{
-    public byte n_servos;
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-    public float[] servo_state;
-}
 
 public interface Command
 {
@@ -102,7 +93,6 @@ public class Arm : MonoBehaviour
 
         // We scale by 100 since the arduino deals in mm
         var command = new PositionCommand(relativePosition * 100);
-        Debug.Log(command.Serialize());
         serial.port.WriteLine(command.Serialize());
     }
 
@@ -112,8 +102,6 @@ public class Arm : MonoBehaviour
         {
             servos[i].SetDriveTarget(ArticulationDriveAxis.X, targets[i]);
         }
-        // Unity is garbage and this gives garbage values????
-        // root.SetDriveTargets(targets);
     }
 }
 
