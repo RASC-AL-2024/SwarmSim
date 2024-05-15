@@ -261,7 +261,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 183318501539855044, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_XDrive.damping
-      value: 5000
+      value: 7500
       objectReference: {fileID: 0}
     - target: {fileID: 183318501539855044, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_XDrive.driveType
@@ -273,11 +273,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 183318501539855044, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_XDrive.forceLimit
-      value: 1000
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 794222741467662828, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_XDrive.damping
-      value: 5000
+      value: 7500
       objectReference: {fileID: 0}
     - target: {fileID: 794222741467662828, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_XDrive.driveType
@@ -289,11 +289,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 794222741467662828, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_XDrive.forceLimit
-      value: 1000
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 2783298269471052840, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_XDrive.damping
-      value: 5000
+      value: 7500
       objectReference: {fileID: 0}
     - target: {fileID: 2783298269471052840, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_XDrive.driveType
@@ -305,7 +305,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2783298269471052840, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_XDrive.forceLimit
-      value: 1000
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 4691421210992418754, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_Name
@@ -385,7 +385,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9089780979441675258, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_XDrive.damping
-      value: 5000
+      value: 7500
       objectReference: {fileID: 0}
     - target: {fileID: 9089780979441675258, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_XDrive.driveType
@@ -397,7 +397,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9089780979441675258, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}
       propertyPath: m_XDrive.forceLimit
-      value: 1000
+      value: 20000
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 8706481478475118255, guid: e6f7af778f76c4793ba4bb20ee60a733, type: 3}

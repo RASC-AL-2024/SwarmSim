@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct SetServoMessage2
@@ -57,6 +56,7 @@ public class Arm : MonoBehaviour
     private Serial<Message> serial;
     private ArticulationBody root;
     private List<float> targets = new List<float> { 0, 0, 0, 0 };
+    private List<ArticulationBody> servos;
 
     // Base turns counter-clockwise around +y, fabrik seems to give cursed directions???
     private static float[] directionMultipliers = { 1, -1, -1, -1 };
@@ -65,6 +65,7 @@ public class Arm : MonoBehaviour
     {
         root = GetComponentInParent<ArticulationBody>();
         root.GetDriveTargets(targets);
+        servos = GetComponentsInChildren<ArticulationBody>().Skip(1).ToList();
 
         var parsers = new List<Func<string, Message>>{
           s => SetServoMessage.parse(s),
@@ -76,9 +77,9 @@ public class Arm : MonoBehaviour
             switch (msg)
             {
                 case SetServoMessage m:
+                    Debug.Log($"New angles: {String.Join(", ", m.servo_state.Select(x => x.ToString()))}");
                     for (int i = 0; i < targets.Count; ++i)
                     {
-                        Debug.Log(m.servo_state[i]);
                         targets[i] = m.servo_state[i] * Mathf.Rad2Deg * directionMultipliers[i];
                     }
                     break;
@@ -107,14 +108,9 @@ public class Arm : MonoBehaviour
 
     void Update()
     {
-        int i = 0;
-        foreach (var body in GetComponentsInChildren<ArticulationBody>())
+        for (int i = 0; i < servos.Count; ++i)
         {
-            if (i > 0)
-            {
-                body.SetDriveTarget(ArticulationDriveAxis.X, targets[i - 1]);
-            }
-            ++i;
+            servos[i].SetDriveTarget(ArticulationDriveAxis.X, targets[i]);
         }
         // Unity is garbage and this gives garbage values????
         // root.SetDriveTargets(targets);
