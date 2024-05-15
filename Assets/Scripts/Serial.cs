@@ -1,8 +1,10 @@
 using System.IO.Ports;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Serde
@@ -22,27 +24,34 @@ public class Serde
     }
 }
 
-public class Serial<T> : IDisposable where T : struct
+public class Serial<T> : IDisposable
 {
-    const string defaultPortName = "/dev/cu.usbmodem14101";
+    const string defaultPortName = "/dev/cu.usbmodem14301";
     const int defaultBaud = 9600;
 
     public SerialPort port;
     public event EventHandler<T> MessageReceived;
 
     private CancellationTokenSource source = new CancellationTokenSource();
+    private List<Func<String, T>> parsers;
 
-    public Serial(string portName, int baudRate)
+    public Serial(string portName, int baudRate, List<Func<string, T>> parsers)
     {
         port = new SerialPort(portName, baudRate);
+        port.StopBits = StopBits.Two;
+        port.Parity = Parity.None;
+        port.DataBits = 8;
+        port.Handshake = Handshake.None;
         port.Open();
+
+        this.parsers = parsers;
 
         Task.Run(() => MessageReader(source.Token));
     }
 
-    public static Serial<T> Default()
+    public static Serial<T> Default(List<Func<string, T>> parsers)
     {
-        return new Serial<T>(defaultPortName, defaultBaud);
+        return new Serial<T>(defaultPortName, defaultBaud, parsers);
     }
 
     public void Dispose()
@@ -55,23 +64,20 @@ public class Serial<T> : IDisposable where T : struct
 
     private async void MessageReader(CancellationToken token)
     {
+        var reader = new StreamReader(port.BaseStream);
         while (!token.IsCancellationRequested)
         {
             try
             {
-                var size = Marshal.SizeOf(typeof(T));
-                byte[] buffer = new byte[size];
-                int offset = 0;
-                while (offset < buffer.Length && !token.IsCancellationRequested)
+                var line = await reader.ReadLineAsync();
+                foreach (var parser in parsers)
                 {
-                    int bytesRead = await port.BaseStream.ReadAsync(buffer, offset, buffer.Length - offset, token);
-                    offset += bytesRead;
-                }
-
-                if (offset == buffer.Length)
-                {
-                    var message = Serde.FromByteArray<T>(buffer);
-                    MessageReceived?.Invoke(this, message);
+                    var result = parser(line);
+                    if (result != null)
+                    {
+                        MessageReceived?.Invoke(this, result);
+                        break;
+                    }
                 }
             }
             catch (Exception ex)
