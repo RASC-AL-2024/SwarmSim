@@ -59,7 +59,7 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
 
     private void tryCreateNewArm()
     {
-        if (!checkSpareModules(Constants.NroverModules))
+        if (!checkSpareModules(Constants.NroverModules) || n_arms >= Constants.targetArms)
         {
             return;
         }
@@ -73,7 +73,7 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
 
     private void tryCreateNewRover()
     {
-        if (!checkSpareModules(Constants.NroverModules))
+        if (!checkSpareModules(Constants.NroverModules) || n_rovers >= Constants.targetRovers)
         {
             return;
         }
@@ -86,10 +86,11 @@ public class GameMainManager : SingletonBehaviour<GameMainManager>
     private void createNewRobot()
     {
         double curr_arm_rover_ratio = (double)n_arms / (double)n_rovers;
-        if(n_rovers * Constants.armRoverRatio < n_arms)
+        if (n_rovers * Constants.armRoverRatio < n_arms || Constants.targetArms <= n_arms)
         {
             tryCreateNewRover();
-        } else
+        }
+        else
         {
             tryCreateNewArm();
         }

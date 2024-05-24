@@ -58,7 +58,7 @@ public class Planner : SingletonBehaviour<Planner>
         switch (e)
         {
             case FinishedUnloading a:
-                Debug.LogFormat("Rover {0} finished unloading", a.rover.sid);
+                Debug.LogFormat("{0}: Rover {1} finished unloading", Time.time, a.rover.sid);
                 dispatch(a.rover);
                 break;
 
@@ -75,12 +75,12 @@ public class Planner : SingletonBehaviour<Planner>
                 break;
 
             case FinishedLoading a:
-                Debug.LogFormat("Rover {0} finished loading", a.rover.sid);
+                Debug.LogFormat("{0}: Rover {1} finished loading", Time.time, a.rover.sid);
                 dispatchUnload(a.rover);
                 break;
 
             case Arrived a:
-                Debug.LogFormat("Rover {0} arrived", a.rover.sid);
+                Debug.LogFormat("{0}: Rover {1} arrived", Time.time, a.rover.sid);
                 doGoal(a.rover);
                 break;
 
@@ -98,7 +98,7 @@ public class Planner : SingletonBehaviour<Planner>
 
     private Miner findMiner()
     {
-        List<int> weights = miners.Select(x => 1 / (x.waitingRovers.Count()+1)).ToList();
+        List<int> weights = miners.Select(x => 1 / (x.waitingRovers.Count() + 1)).ToList();
         double weight_sum = (double)weights.Sum();
 
         List<double> norm_weights = weights.Select(x => (double)x / weight_sum).ToList();
@@ -140,8 +140,8 @@ public class Planner : SingletonBehaviour<Planner>
                 return;
             }
         }
-        
-        if(miners.Count > 0)
+
+        if (miners.Count > 0)
         {
 
             var miner = findMiner();

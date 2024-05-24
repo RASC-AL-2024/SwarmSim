@@ -5,7 +5,7 @@ from scipy.signal import savgol_filter
 import os
 
 def smooth(x):
-  return savgol_filter(x, min(len(x), 51), 3)
+  return x # savgol_filter(x, min(len(x), 51), 3)
 
 df = pd.read_csv(os.path.dirname(__file__) + '/../resourceData.csv')
 
@@ -27,9 +27,10 @@ ax2.legend()
 
 generated = df['totalGenerated']
 drained = generated - df['battery']
+dt = np.diff(df['time'], prepend=0)
 
-ax3.plot(df['time'], np.maximum(0, smooth(np.diff(generated, prepend=0))), label='Energy Generated')
-ax3.plot(df['time'], smooth(np.maximum(0, np.diff(drained, prepend=0))), label='Energy Consumed')
+ax3.plot(df['time'], np.maximum(0, smooth(np.diff(generated, prepend=0) / dt)), label='Energy Generated')
+ax3.plot(df['time'], smooth(np.maximum(0, np.diff(drained, prepend=0) / dt)), label='Energy Consumed')
 ax3.set_title('Energy Flow Over Time')
 ax3.set_xlabel('Time (s)')
 ax3.set_ylabel('W')

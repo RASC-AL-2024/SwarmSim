@@ -1,12 +1,11 @@
 using UnityEngine;
 using System.Collections;
 using System.IO;
-using System;
 
 public class CentralResources : MonoBehaviour
 {
     // I hate C#
-    public Battery Battery { get; set; } = new Battery(Constants.centralBatteryCapacity, Constants.centralBatteryCapacity / 2);
+    public Battery Battery { get; set; } = new Battery(Constants.centralBatteryCapacity, Constants.centralBatteryCapacity);
     public static Storage TotalDirt { get; set; } = new Storage(double.MaxValue, 0); // may the lord forgive me
     public double TotalBattery = 0.0f; // same
     public Storage Dirt { get; set; } = new Storage(Constants.centralDirtCapacity, 0);
@@ -36,12 +35,14 @@ public class CentralResources : MonoBehaviour
     void Update()
     {
         // Solar power needs a sine weighting
-        float dayCycle = Mathf.Sin(Time.time / Constants.dayLength * 2 * Mathf.PI);
-        if (dayCycle > 0)
+        double oldBat = Battery.current;
+        Battery.add(Constants.reactorPower, Time.deltaTime);
+        TotalBattery += (Battery.current - oldBat);
+
+        // Don't print and stuff if low on energy
+        if (Battery.ratio() <= 0.2)
         {
-            double old = Battery.current;
-            Battery.add(Constants.peakSolarPower * dayCycle, Time.deltaTime);
-            TotalBattery += (Battery.current - old);
+            return;
         }
 
         if (!Dirt.empty() && !Powder.full())

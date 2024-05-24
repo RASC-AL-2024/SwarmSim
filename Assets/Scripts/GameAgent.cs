@@ -41,6 +41,11 @@ public class Storage
         return oldcurrent - current;
     }
 
+    public double ratio()
+    {
+        return this.current / this.capacity;
+    }
+
     public bool empty()
     {
         return current == 0f;
@@ -66,7 +71,7 @@ public class Battery : Storage
 
     public bool isLow()
     {
-        return (current / capacity) <= Constants.lowBatteryThreshold;
+        return ratio() <= Constants.lowBatteryThreshold;
     }
 }
 
