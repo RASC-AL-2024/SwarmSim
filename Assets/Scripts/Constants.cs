@@ -2,7 +2,7 @@ public static class Constants
 {
     // Power
     public const float reactorPower = 10000; // W
-    public const float centralBatteryCapacity = 1e7f; // J
+    public const float centralBatteryCapacity = 1e9f; // J
     public const float roverBatteryCapacity = 720000; // J (200Wh)
     public const float servoIdleDrain = 0.1f; // W, how much each servo drains when idle
     public const float servoActiveDrain = 0.5f; // W, how much a each servo drains when it moves (added to idle)
