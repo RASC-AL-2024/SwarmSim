@@ -14,7 +14,7 @@ def w_to_kw(x):
   return x / 1000
 
 def process(df):
-  n = 20
+  n = 40
   s = lambda x: ma(x, n)
   raw_generated = df['totalGenerated']
   raw_drained = raw_generated - df['battery']
@@ -36,7 +36,7 @@ def trim(a, b, n):
   return out_a, out_b
 
 growth = process(pd.read_csv(os.path.dirname(__file__) + '/../replicating.csv'))
-baseline = process(pd.read_csv(os.path.dirname(__file__) + '/../resourceData.csv'))
+baseline = process(pd.read_csv(os.path.dirname(__file__) + '/../baseline.csv'))
 growth, baseline = trim(growth, baseline, 500)
 
 fig1, ax1 = plt.subplots(1, 1, figsize=(5, 5))
@@ -55,6 +55,7 @@ ax1.set_xlabel('Time (s)')
 ax1.set_ylabel('kW')
 ax1.grid(True)
 ax1.legend()
+fig1.savefig('energy.png', dpi=300)
 
 # fig1.suptitle('Energy Simuluation Results')
 
@@ -77,6 +78,7 @@ ax1.set_ylabel('Total Modules Produced')
 ax1.set_title('Total Modules Produced Over Time')
 ax1.grid(True)
 ax1.legend()
+fig2.savefig('modules.png', dpi=300)
 
 plt.tight_layout()
 plt.show()

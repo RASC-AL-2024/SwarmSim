@@ -50,8 +50,8 @@ public static class Constants
     public const int NarmModules = 11;
     public const int NroverModules = 6;
 
-    public const int targetArms = 1;
-    public const int targetRovers = 4;
+    public const int targetArms = 3;
+    public const int targetRovers = 8;
 }
 
 // 0.01 speed + 0.5 servo active drain gives like 250 W/m (bad)
