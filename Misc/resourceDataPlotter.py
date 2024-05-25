@@ -27,7 +27,7 @@ ax2.legend()
 
 generated = df['totalGenerated']
 drained = generated - df['battery']
-dt = np.diff(df['time'], prepend=0)
+dt = np.diff(df['time'], prepend=-1)
 
 ax3.plot(df['time'], np.maximum(0, smooth(np.diff(generated, prepend=0) / dt)), label='Energy Generated')
 ax3.plot(df['time'], smooth(np.maximum(0, np.diff(drained, prepend=0) / dt)), label='Energy Consumed')

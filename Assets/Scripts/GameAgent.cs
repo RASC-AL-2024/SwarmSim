@@ -41,6 +41,14 @@ public class Storage
         return oldcurrent - current;
     }
 
+    public double budgetRemove(double rate, double dt, double minRatio)
+    {
+        var delta = rate * dt;
+        var oldcurrent = current;
+        current = Math.Max(current - delta, minRatio * capacity);
+        return (oldcurrent - current) / delta;
+    }
+
     public double ratio()
     {
         return this.current / this.capacity;
@@ -178,8 +186,9 @@ public class LoadModule : Behaviour
 
         if (Unload != null)
         {
+            var old = Unload.current;
             Dirt.transferTo(Unload, Constants.dirtTransferRate, Time.deltaTime);
-            CentralResources.TotalDirt.add(Dirt.capacity); // quick hack because I can't code :(
+            CentralResources.TotalDirt.add(Unload.current - old);
         }
     }
 }

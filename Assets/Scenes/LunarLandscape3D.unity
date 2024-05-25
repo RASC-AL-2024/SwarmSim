@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 297098016}
-  m_IndirectSpecularColor: {r: 0.040559843, g: 0.038807772, b: 0.04100153, a: 1}
+  m_IndirectSpecularColor: {r: 0.040539697, g: 0.038835242, b: 0.040983073, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -395,8 +395,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rover_prefab: {fileID: 3972119860936325249, guid: 3fbaa6e08ce229d4c93d23965d6bd3b8, type: 3}
   arm_prefab: {fileID: 5067605180232783958, guid: effd7a67f4bdcf043beea82e093362eb, type: 3}
-  n_rovers: 4
-  n_arms: 3
+  n_rovers: 1
+  n_arms: 1
   rover_spawn_radius: 10
   arm_spawn_radius: 10
   time_scale: 50
@@ -828,6 +828,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 967e7d09513c54373b8a40805c337619, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TotalBattery: 0
+  TotalModules: 0
 --- !u!4 &1972631348
 Transform:
   m_ObjectHideFlags: 0
