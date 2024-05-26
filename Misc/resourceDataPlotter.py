@@ -13,6 +13,9 @@ def j_to_kwh(x):
 def w_to_kw(x):
   return x / 1000
 
+def s_to_hr(x):
+  return x / 3600
+
 def process(df):
   n = 40
   s = lambda x: ma(x, n)
@@ -20,7 +23,7 @@ def process(df):
   raw_drained = raw_generated - df['battery']
   dt = np.diff(df['time'], prepend=-1)
   return {
-    'time': df['time'][:-(n-1)], # technically incorrect but look better
+    'time': s_to_hr(df['time'][:-(n-1)]), # technically incorrect but look better
     'battery': j_to_kwh(s(df['battery'])),
     'total_ore':  s(df['totalDirt']),
     'modules': s(df['totalModules']),
@@ -35,9 +38,9 @@ def trim(a, b, n):
     out_b[k] = b[k][:n]
   return out_a, out_b
 
-growth = process(pd.read_csv(os.path.dirname(__file__) + '/../replicating.csv'))
-baseline = process(pd.read_csv(os.path.dirname(__file__) + '/../baseline.csv'))
-growth, baseline = trim(growth, baseline, 500)
+growth = process(pd.read_csv(os.path.dirname(__file__) + '/../resourceData.csv'))
+baseline = process(pd.read_csv(os.path.dirname(__file__) + '/../resourceData.csv'))
+growth, baseline = trim(growth, baseline, 2000)
 
 fig1, ax1 = plt.subplots(1, 1, figsize=(5, 5))
 # ax1.plot(growth['time'], growth['battery'], label='Battery', color='blue')
@@ -51,7 +54,7 @@ fig1, ax1 = plt.subplots(1, 1, figsize=(5, 5))
 ax1.plot(growth['time'], growth['generated'], label='Generation Rate')
 ax1.plot(growth['time'], growth['drained'], label='Consumption Rate')
 ax1.set_title('Energy Flow Over Time')
-ax1.set_xlabel('Time (s)')
+ax1.set_xlabel('Time (Hours)')
 ax1.set_ylabel('kW')
 ax1.grid(True)
 ax1.legend()
@@ -73,7 +76,7 @@ fig2, ax1 = plt.subplots(1, 1, figsize=(5, 5))
 
 ax1.plot(growth['time'], growth['modules'], label='Replicating')
 ax1.plot(growth['time'], baseline['modules'], label='Baseline')
-ax1.set_xlabel('Time (s)')
+ax1.set_xlabel('Time (Hours)')
 ax1.set_ylabel('Total Modules Produced')
 ax1.set_title('Total Modules Produced Over Time')
 ax1.grid(True)
@@ -81,6 +84,9 @@ ax1.legend()
 fig2.savefig('modules.png', dpi=300)
 
 plt.tight_layout()
+plt.show()
+
+plt.plot(np.diff(baseline['modules']))
 plt.show()
 
 # ax1.plot(*smooth(df['time'], df['battery']), label='Battery', color='blue')
