@@ -39,6 +39,16 @@ public record DebugMessage(string message) : Message
     }
 }
 
+
+public record Interpolate(List<float> start, List<float> end, float startTime, float endTime)
+{
+    public float getValue(float time, int i)
+    {
+        var t = Mathf.Clamp((time - startTime) / (endTime - startTime), 0, 1);
+        return end[i] * t + (1 - t) * start[i];
+    }
+}
+
 public class Arm : MonoBehaviour
 {
     public Transform target;
@@ -49,13 +59,17 @@ public class Arm : MonoBehaviour
     private List<float> targets = new List<float> { 0, 0, 0, 0 };
     private List<ArticulationBody> servos;
 
-    // Base turns counter-clockwise around +y, fabrik seems to give cursed directions???
-    private static float[] directionMultipliers = { 1, -1, -1, -1 };
+    private static float[] directionMultipliers = { 1, -1, 1, 1 };
+
+    Interpolate interpolate;
+    float lastTime = 0;
+    List<float> current = new List<float> { 0, 0, 0, 0 };
 
     void OnEnable()
     {
         root = GetComponentInParent<ArticulationBody>();
         root.GetDriveTargets(targets);
+        interpolate = new Interpolate(targets, targets, 0, 1);
         servos = GetComponentsInChildren<ArticulationBody>().Skip(1).ToList();
 
         var parsers = new List<Func<string, Message>>{
@@ -73,6 +87,7 @@ public class Arm : MonoBehaviour
                     {
                         targets[i] = m.servo_state[i] * Mathf.Rad2Deg * directionMultipliers[i];
                     }
+                    interpolate = new Interpolate(new List<float>(current), targets, lastTime, lastTime + 4f);
                     break;
                 case DebugMessage m:
                     Debug.Log($"Arduino: {m.message}");
@@ -98,9 +113,12 @@ public class Arm : MonoBehaviour
 
     void Update()
     {
+        lastTime = Time.time;
+        root.GetDriveTargets(current);
+
         for (int i = 0; i < servos.Count; ++i)
         {
-            servos[i].SetDriveTarget(ArticulationDriveAxis.X, targets[i]);
+            servos[i].SetDriveTarget(ArticulationDriveAxis.X, interpolate.getValue(Time.time, i));
         }
     }
 }

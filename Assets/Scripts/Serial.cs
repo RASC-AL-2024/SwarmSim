@@ -8,7 +8,7 @@ using UnityEngine;
 
 public class Serial<T> : IDisposable
 {
-    const string defaultPortName = "/dev/cu.usbmodem14301";
+    const string defaultPortName = "/dev/cu.usbmodem14201";
     const int defaultBaud = 9600;
 
     public SerialPort port;
