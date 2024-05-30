@@ -17,16 +17,16 @@ public static class Constants
     // Processing
     public const float centralDirtCapacity = 20000; // g, how much dirt can be stored
 
-    public const float powderizeRate = 10; // g/s, dirt -> powder rate
-    public const float powderizeDrain = 10000; // W, how much energy it costs to run powderize
+    public const float powderizeRate = 10 * 10; // g/s, dirt -> powder rate
+    public const float powderizeDrain = 10000 * 10; // W, how much energy it costs to run powderize
     public const float powderizeYield = 0.95f; // ratio
 
-    public const float heatRate = 10; // g/s, powder -> printable rate
+    public const float heatRate = 10 * 10; // g/s, powder -> printable rate
     public const float heatDrain = 0; // 5000; // W
     public const float heatYield = 0.96f; // ratio
 
-    public const float printRate = 5f;//0.3f; // g/s, printable -> spare module rate
-    public const float printDrain = 20000; // W
+    public const float printRate = 5f * 10;//0.3f; // g/s, printable -> spare module rate
+    public const float printDrain = 20000 * 10; // W
     public const float moduleMass = 300; // g
     public const float spareModuleCapacity = 100000; // # spare modules
 
@@ -50,8 +50,8 @@ public static class Constants
     public const int NarmModules = 11;
     public const int NroverModules = 6;
 
-    public const int targetArms = 1;
-    public const int targetRovers = 4;
+    public const int targetArms = 3;
+    public const int targetRovers = 8;
 }
 
 // 0.01 speed + 0.5 servo active drain gives like 250 W/m (bad)

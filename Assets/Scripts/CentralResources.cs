@@ -44,7 +44,7 @@ public class CentralResources : MonoBehaviour
             var desired = System.Math.Min(Dirt.current / (Constants.powderizeRate * Time.deltaTime), 1.0);
             if (desired > 0.01)
             {
-                var ratio = Battery.budgetRemove(Constants.powderizeDrain, Time.deltaTime, 0.95);
+                var ratio = Battery.budgetRemove(desired * Constants.powderizeDrain, Time.deltaTime, 0.95);
                 Dirt.transferTo(Powder, ratio * desired * Constants.powderizeRate, Time.deltaTime, Constants.powderizeYield);
             }
         }
@@ -61,7 +61,7 @@ public class CentralResources : MonoBehaviour
             var desired = System.Math.Min(PrintMaterial.current / (Constants.printRate * Time.deltaTime), 1.0);
             if (desired > 0.01)
             {
-                var ratio = Battery.budgetRemove(Constants.printDrain, Time.deltaTime, 0.95);
+                var ratio = Battery.budgetRemove(desired * Constants.printDrain, Time.deltaTime, 0.95);
                 double old = SpareModules.current;
                 PrintMaterial.transferTo(SpareModules, ratio * Constants.printRate, Time.deltaTime, 1 / Constants.moduleMass);
                 TotalModules += (SpareModules.current - old);
