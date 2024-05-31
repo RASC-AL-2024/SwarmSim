@@ -8,9 +8,9 @@ public interface Command
 {
     string Serialize();
 }
-public record PositionCommand(Vector3 position) : Command
+public record PositionCommand(Matrix4x4 pos) : Command
 {
-    public string Serialize() => $"p {position.x},{position.y},{position.z}";
+    public string Serialize() => $"p {pos.m00},{pos.m01},{pos.m02},{pos.m03},{pos.m10},{pos.m11},{pos.m12},{pos.m13},{pos.m20},{pos.m21},{pos.m22},{pos.m23},{pos.m30},{pos.m31},{pos.m32},{pos.m33}";
 }
 
 public interface Message { };
@@ -87,7 +87,7 @@ public class Arm : MonoBehaviour
                     {
                         targets[i] = m.servo_state[i] * Mathf.Rad2Deg * directionMultipliers[i];
                     }
-                    interpolate = new Interpolate(new List<float>(current), targets, lastTime, lastTime + 4f);
+                    interpolate = new Interpolate(new List<float>(current), targets, lastTime, lastTime + 8f);
                     break;
                 case DebugMessage m:
                     Debug.Log($"Arduino: {m.message}");
@@ -106,8 +106,10 @@ public class Arm : MonoBehaviour
         var relativePosition = Quaternion.Inverse(basePosition.rotation) * (target.position - basePosition.position);
         var relativeRotation = Quaternion.Inverse(basePosition.rotation) * target.rotation;
 
+        var pose = Matrix4x4.TRS(100 * relativePosition, relativeRotation, new Vector3(1, 1, 1));
+
         // We scale by 100 since the arduino deals in mm
-        var command = new PositionCommand(relativePosition * 100);
+        var command = new PositionCommand(pose);
         serial.port.WriteLine(command.Serialize());
     }
 
