@@ -48,15 +48,14 @@ public class Module : MonoBehaviour
 
     private (Vector3, Quaternion) compose((Vector3 pos, Quaternion rot) tA, (Vector3 pos, Quaternion rot) tB)
     {
-        // (B b)(A a) = (BA Ba + b
-        // (0 1)(0 1)   (0 1)
-
-        return (tB.pos + (tA.rot * tB.rot) * tA.pos, tA.rot * tB.rot);
+        // perform A, then perform B
+        return (tB.pos + tB.rot * tA.pos, tA.rot * tB.rot);
     }
 
     private (Vector3, Quaternion) invert(Vector3 position, Quaternion rotation)
     {
-        return (-position, Quaternion.Inverse(rotation));
+        var inv = Quaternion.Inverse(rotation);
+        return (inv * -position, inv);
     }
 
     private void UpdateConnection(Connection connection)
@@ -68,30 +67,35 @@ public class Module : MonoBehaviour
         // childConnection.anchor is relative to child
         // child is relative to us
         // Some of these transforms are probably broken
-        // con.al2p = cc.al2p @ rot180y
-        // cc.al2p = c.c2p @ cc.al2c
-        // c.c2p = cc.al2p @ (cc.al2c)^-1
-        // c.c2p = con.al2p @ (rot180y)^{-1} @ (cc.al2c)^-1
-        //
 
-        var p = childConnection.anchor.localPosition;
-        // this angle calculation is right
-        var r = childConnection.anchor.localRotation * Quaternion.Euler(0, 180, 0);
-        (var position, var rotation) = compose((connection.anchor.localPosition, connection.anchor.localRotation), invert(p, r));
+        // p.a.locals = c.locals @ c.a.locals @ rot
+        // p.a.locals @ (rot)^{-1} @ (c.a.locals)^{-1}
 
-        var childObject = connection.other.gameObject;
+        // var p = childConnection.anchor.localPosition;
+        // // this angle calculation is right
+        // var r = childConnection.anchor.localRotation * Quaternion.Euler(0, 180, 0);
+        // (var position, var rotation) = compose((connection.anchor.localPosition, connection.anchor.localRotation), invert(p, r));
 
-        // (var position, var rotation) = compose(
-        //   compose(
-        //     invert(childConnection.anchor.localPosition, childConnection.anchor.localRotation),
-        //     invert(new Vector3(), Quaternion.Euler(0, 180, 0))
-        //   ),
-        //   (connection.anchor.localPosition, connection.anchor.localRotation)
-        // );
+        // var childObject = connection.other.gameObject;
+
+        (var position, var rotation) = compose(
+          invert(childConnection.anchor.localPosition, childConnection.anchor.localRotation),
+          (connection.anchor.localPosition, connection.anchor.localRotation)
+        );
 
         // position might not be right but not sure
-        connection.other.transform.localPosition = rotation * position;
+        connection.other.transform.localPosition = position;
         connection.other.transform.localRotation = rotation;
+
+        Debug.Log(connection.anchor.position);
+        (var testp, var testr) = compose(
+          (childConnection.anchor.localPosition, childConnection.anchor.localRotation),
+          (connection.other.transform.localPosition, connection.other.transform.localRotation)
+        );
+        Debug.Log(testp);
+        Debug.Log(testr);
+        Debug.Log(connection.anchor.localPosition);
+        Debug.Log(connection.anchor.localRotation);
 
         var childBody = connection.other.GetComponent<ArticulationBody>();
         childBody.matchAnchors = true; // breaks otherwise :( (unity bug??)
@@ -99,7 +103,7 @@ public class Module : MonoBehaviour
         childBody.anchorPosition = childConnection.anchor.localPosition;
         childBody.anchorRotation = childConnection.anchor.localRotation;
         childBody.parentAnchorPosition = connection.anchor.localPosition;
-        childBody.parentAnchorRotation = Quaternion.Euler(0, 180, 0) * connection.anchor.localRotation;
+        childBody.parentAnchorRotation = connection.anchor.localRotation;
     }
 
     public void UpdateConnections()
