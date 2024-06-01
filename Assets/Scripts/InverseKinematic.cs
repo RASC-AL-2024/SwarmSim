@@ -17,6 +17,8 @@ public class InverseKinematics : MonoBehaviour
 
     private List<ArticulationBody> bodies;
 
+    public bool Arrived { get; private set; } = false;
+
     void Start()
     {
         bodies = new List<ArticulationBody>();
@@ -30,6 +32,11 @@ public class InverseKinematics : MonoBehaviour
             drive.target = 0;
             bodies[^1].xDrive = drive;
         }
+    }
+
+    public GameObject End()
+    {
+        return bodies[^1].gameObject;
     }
 
     string JacobianString(ArticulationJacobian jacobian)
@@ -83,6 +90,11 @@ public class InverseKinematics : MonoBehaviour
             AngleError(y.z, yhat.z));
     }
 
+    float MaxAbs(float x, float m)
+    {
+        return x > 0 ? Mathf.Min(x, m) : Mathf.Max(x, -m);
+    }
+
     void Update()
     {
         // https://nvidia-omniverse.github.io/PhysX/physx/5.3.1/docs/Articulations.html?highlight=cache%20indexing#cache-indexing
@@ -90,15 +102,16 @@ public class InverseKinematics : MonoBehaviour
         // Jacobian includes linear and rotational components
         var jacobian = new ArticulationJacobian();
         bodies[^1].GetDenseJacobian(ref jacobian);
-        Debug.Log(JacobianString(jacobian));
 
         var positionError = PositionError();
         var rotationError = RotationError();
-        Debug.Log($"{positionError} {rotationError}");
         if (positionError.magnitude < 0.1 && rotationError.magnitude < 2)
         {
+            Arrived = true;
             return;
         }
+
+        Arrived = false;
 
         // Shitty L1 gradient descent using the jacobian.
         // I don't know if this is actually convex lol
@@ -110,12 +123,13 @@ public class InverseKinematics : MonoBehaviour
             float gradient = 0f;
             for (int j = 0; j < 3; ++j)
             {
-                gradient += positionError[j] * jacobian[jacobian.rows - 6 + j, i - 1];
-                gradient += 1e-2f * rotationError[j] * jacobian[jacobian.rows - 3 + j, i - 1];
+                // Ignore the tanh just want faster convergence
+                gradient += (float)System.Math.Tanh(positionError[j] * jacobian[jacobian.rows - 6 + j, i - 1]);
+                gradient += (float)System.Math.Tanh(1e-2f * rotationError[j] * jacobian[jacobian.rows - 3 + j, i - 1]);
             }
 
             var drive = bodies[i].xDrive;
-            drive.target += gradient;
+            drive.target += MaxAbs(gradient, 0.1f);
             bodies[i].xDrive = drive;
         }
     }
