@@ -1,6 +1,20 @@
 using UnityEngine;
 using UnityEditor;
 
+public record Schedule(Vector3 startPos, Quaternion startRot, float startTime, Vector3 endPos, Quaternion endRot, float endTime)
+{
+    public (Vector3, Quaternion) Current(float time)
+    {
+        var t = Mathf.Clamp((time - startTime) / (endTime - startTime), 0, 1);
+        return (Vector3.Lerp(startPos, endPos, t), Quaternion.Slerp(startRot, endRot, t));
+    }
+
+    public bool Done(float time)
+    {
+        return time > endTime;
+    }
+}
+
 public class GoodArm : MonoBehaviour
 {
     public Lego lego;
@@ -8,6 +22,7 @@ public class GoodArm : MonoBehaviour
 
     private bool working = false;
     private float arrivedSince = 1e38f;
+    private Schedule schedule = null;
 
     void OnEnable()
     {
@@ -17,8 +32,7 @@ public class GoodArm : MonoBehaviour
     public void Pickup()
     {
         working = true;
-        ik.target.position = lego.end.position;
-        ik.target.rotation = lego.end.rotation;
+        schedule = new Schedule(ik.target.position, ik.target.rotation, Time.time, lego.end.position, lego.end.rotation, Time.time + 20f);
         arrivedSince = 1e38f;
     }
 
@@ -29,6 +43,14 @@ public class GoodArm : MonoBehaviour
 
     void Update()
     {
+        if (schedule != null && !schedule.Done(Time.time))
+        {
+            (var p, var q) = schedule.Current(Time.time);
+            Debug.Log(ik.PositionError());
+            ik.target.position = p;
+            ik.target.rotation = q;
+        }
+
         if (!ik.Arrived)
         {
             arrivedSince = 1e38f;
@@ -38,7 +60,7 @@ public class GoodArm : MonoBehaviour
             arrivedSince = Mathf.Min(arrivedSince, Time.time);
         }
 
-        if (working && (Time.time - arrivedSince) > 1f)
+        if (working && schedule.Done(Time.time) && (Time.time - arrivedSince) > 1f)
         {
             ik.target.position += new Vector3(0, 1f, 0);
             working = false;
