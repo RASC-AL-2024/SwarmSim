@@ -114,7 +114,7 @@ namespace RobotDynamics.Robots
                 //But only do it once.
                 if (it == max_it - 1 && !loosendUpOnce)
                 {
-                    result.numberOfIterationsPerfomred += max_it/2;
+                    result.numberOfIterationsPerfomred += max_it / 2;
                     it /= 2;
                     tol *= 10;
                     loosendUpOnce = true;

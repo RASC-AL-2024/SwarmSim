@@ -34,7 +34,7 @@ public class RobotBase : MonoBehaviour
         {
             for (int i = 0; i < Robot.Links.Count; i++)
             {
-                if(Robot.Links[i].Type == RobotDynamics.Robots.Link.JointType.Linear)
+                if (Robot.Links[i].Type == RobotDynamics.Robots.Link.JointType.Linear)
                 {
                     alpha.matrix[i, i] *= 20;
                 }
@@ -74,6 +74,7 @@ public class RobotBase : MonoBehaviour
         {
             if (Target.transform.localPosition != lastPos || Target.transform.localRotation != lastRot)
             {
+                Debug.Log("HERE");
                 lastPos = Target.transform.localPosition;
                 lastRot = Target.transform.localRotation;
 
@@ -85,6 +86,11 @@ public class RobotBase : MonoBehaviour
 
                 if (result.DidConverge)
                 {
+                    Debug.Log("Converged");
+                    foreach (var x in result.q)
+                    {
+                        Debug.Log(x);
+                    }
                     last_q = result.q;
 
                     if (!EnablePController)

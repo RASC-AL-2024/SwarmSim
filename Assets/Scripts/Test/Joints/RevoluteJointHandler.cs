@@ -1,14 +1,12 @@
 using RobotDynamics.MathUtilities;
 using RobotDynamics.Robots;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class RevoluteJointHandler : JointHandler
 {
     public void Awake()
     {
-        if(RootObject == null)
+        if (RootObject == null)
         {
             RootObject = this.gameObject;
         }
