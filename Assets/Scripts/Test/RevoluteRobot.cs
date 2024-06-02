@@ -22,7 +22,7 @@ public class RevoluteRobot : RobotBase
           new Vector(0.112, 1.986, -0.121),
           new Vector(0.112, 2.212, 0.122),
           new Vector(0.112, 2.548, 0.431),
-          new Vector(0.1226072, 2.774752, 0.3312836)
+          new Vector(0.094, 2.774752, -0.157)
         };
 
         Robot = new Robot()
