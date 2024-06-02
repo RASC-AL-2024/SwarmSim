@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using System.Collections;
 
 public record Schedule(Vector3 startPos, Quaternion startRot, float startTime, Vector3 endPos, Quaternion endRot, float endTime)
 {
@@ -18,7 +19,7 @@ public record Schedule(Vector3 startPos, Quaternion startRot, float startTime, V
 public class GoodArm : MonoBehaviour
 {
     public Lego lego;
-    private InverseKinematics ik;
+    private RevoluteRobot robot;
 
     private bool working = false;
     private float arrivedSince = 1e38f;
@@ -26,46 +27,56 @@ public class GoodArm : MonoBehaviour
 
     void OnEnable()
     {
-        ik = GetComponentInParent<InverseKinematics>();
+        robot = GetComponentInParent<RevoluteRobot>();
     }
 
     public void Pickup()
     {
-        working = true;
-        schedule = new Schedule(ik.target.position, ik.target.rotation, Time.time, lego.end.position, lego.end.rotation, Time.time + 20f);
-        arrivedSince = 1e38f;
+        StartCoroutine(PickupImpl());
+    }
+
+    IEnumerator PickupImpl()
+    {
+        robot.Target.transform.position = lego.start.transform.position;
+        robot.Target.transform.rotation = lego.start.transform.rotation;
+        yield return new WaitForSeconds(6f);
+        robot.Target.transform.position = lego.end.transform.position;
+        robot.Target.transform.rotation = lego.end.transform.rotation;
+        yield return new WaitForSeconds(4f);
+        Attach();
+        robot.Target.transform.position += Vector3.up;
     }
 
     void Attach()
     {
-        lego.gameObject.transform.SetParent(ik.End().transform);
+        lego.gameObject.transform.SetParent(robot.Joints[^1].transform);
     }
 
     void Update()
     {
-        if (schedule != null && !schedule.Done(Time.time))
-        {
-            (var p, var q) = schedule.Current(Time.time);
-            Debug.Log(ik.PositionError());
-            ik.target.position = p;
-            ik.target.rotation = q;
-        }
+        // if (schedule != null && !schedule.Done(Time.time))
+        // {
+        //     (var p, var q) = schedule.Current(Time.time);
+        //     Debug.Log(ik.PositionError());
+        //     ik.target.position = p;
+        //     ik.target.rotation = q;
+        // }
 
-        if (!ik.Arrived)
-        {
-            arrivedSince = 1e38f;
-        }
-        else
-        {
-            arrivedSince = Mathf.Min(arrivedSince, Time.time);
-        }
+        // if (!ik.Arrived)
+        // {
+        //     arrivedSince = 1e38f;
+        // }
+        // else
+        // {
+        //     arrivedSince = Mathf.Min(arrivedSince, Time.time);
+        // }
 
-        if (working && schedule.Done(Time.time) && (Time.time - arrivedSince) > 1f)
-        {
-            ik.target.position += new Vector3(0, 1f, 0);
-            working = false;
-            Attach();
-        }
+        // if (working && schedule.Done(Time.time) && (Time.time - arrivedSince) > 1f)
+        // {
+        //     ik.target.position += new Vector3(0, 1f, 0);
+        //     working = false;
+        //     Attach();
+        // }
     }
 }
 

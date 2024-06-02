@@ -1,6 +1,5 @@
 using RobotDynamics.Controller;
 using RobotDynamics.MathUtilities;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,7 +15,7 @@ public class RobotBase : MonoBehaviour
     public bool PrioritizeLinearJoints = true;
     [Range(0, 5)]
     [Tooltip("Proportional controller parameter used for smoothing the angles")]
-    public float Kp = 2;
+    public float Kp = 1;
     [Range(0, 500)]
     [Tooltip("The maximum number of iterations per update inversekinematics call")]
     public int MaxIter = 100;
@@ -74,7 +73,6 @@ public class RobotBase : MonoBehaviour
         {
             if (Target.transform.localPosition != lastPos || Target.transform.localRotation != lastRot)
             {
-                Debug.Log("HERE");
                 lastPos = Target.transform.localPosition;
                 lastRot = Target.transform.localRotation;
 
@@ -86,17 +84,16 @@ public class RobotBase : MonoBehaviour
 
                 if (result.DidConverge)
                 {
-                    Debug.Log("Converged");
-                    foreach (var x in result.q)
-                    {
-                        Debug.Log(x);
-                    }
                     last_q = result.q;
 
                     if (!EnablePController)
                     {
                         SetQ(result.q);
                     }
+                }
+                else
+                {
+                    Debug.Log("Couldn't converge");
                 }
             }
         }
