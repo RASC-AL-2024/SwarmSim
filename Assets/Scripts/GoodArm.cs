@@ -2,38 +2,26 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections;
 
-public record Schedule(Vector3 startPos, Quaternion startRot, float startTime, Vector3 endPos, Quaternion endRot, float endTime)
-{
-    public (Vector3, Quaternion) Current(float time)
-    {
-        var t = Mathf.Clamp((time - startTime) / (endTime - startTime), 0, 1);
-        return (Vector3.Lerp(startPos, endPos, t), Quaternion.Slerp(startRot, endRot, t));
-    }
-
-    public bool Done(float time)
-    {
-        return time > endTime;
-    }
-}
-
 public class GoodArm : MonoBehaviour
 {
-    public Lego lego;
     public Lego effector;
     private RevoluteRobot robot;
 
+    public Lego act;
+    public Lego zoink;
+
     private bool working = false;
     private float arrivedSince = 1e38f;
-    private Schedule schedule = null;
+    private Lego current = null;
 
     void OnEnable()
     {
         robot = GetComponentInParent<RevoluteRobot>();
     }
 
-    public void Pickup()
+    public void WrappedPickup(Lego lego, Transform female)
     {
-        StartCoroutine(PickupImpl());
+        StartCoroutine(Pickup(lego, female));
     }
 
     private (Vector3, Quaternion) compose((Vector3 pos, Quaternion rot) tA, (Vector3 pos, Quaternion rot) tB)
@@ -48,62 +36,56 @@ public class GoodArm : MonoBehaviour
         return (inv * -position, inv);
     }
 
-    // target.l2w = start.l2w
-    // start.l2w = center.l2w @ s2.l2p
-    // target.l2w = start.l2w @ s2.l2p^{-1}
-    // just need to subtract local pos from target
-    //
-    // set target = goal -> center goes to goal
-    // set target = goal . T -> center goals to goal . T
-    // s2c = -5, target = T, goal = T + 5 implies center => T + 5, s2c = T
-    //
-
-    IEnumerator PickupImpl()
+    private (Vector3, Quaternion) invert((Vector3 position, Quaternion rotation) x)
     {
+        return invert(x.position, x.rotation);
+    }
+
+    public IEnumerator Pickup(Lego lego, Transform female)
+    {
+        current = lego;
         (var pos, var rot) = compose(
-            invert(effector.start.transform.localPosition, effector.start.transform.localRotation),
-            (lego.start.transform.position, lego.start.transform.rotation));
+            invert(effector.males[0].transform.localPosition, effector.males[0].transform.localRotation),
+            (female.transform.position, female.transform.rotation));
         robot.Target.transform.position = pos;
         robot.Target.transform.rotation = rot;
         yield return new WaitForSeconds(8f);
-        robot.Target.transform.position += 0.37f * lego.start.transform.TransformDirection(Vector3.up);
-        // robot.Target.transform.position = lego.end.transform.position;
-        // robot.Target.transform.rotation = lego.end.transform.rotation;
-        // yield return new WaitForSeconds(4f);
-        // Attach();
-        // robot.Target.transform.position += Vector3.up;
-    }
+        robot.Target.transform.position += 0.37f * female.transform.TransformDirection(Vector3.up);
+        yield return new WaitForSeconds(4f);
 
-    void Attach()
-    {
+        // Attach
         lego.gameObject.transform.SetParent(robot.Joints[^1].transform);
     }
 
-    void Update()
+    public IEnumerator Place(Lego target, Transform targetFemale, Transform currentMale)
     {
-        // if (schedule != null && !schedule.Done(Time.time))
-        // {
-        //     (var p, var q) = schedule.Current(Time.time);
-        //     Debug.Log(ik.PositionError());
-        //     ik.target.position = p;
-        //     ik.target.rotation = q;
-        // }
+        // (var pos, var rot) = compose(
+        //     invert(effector.males[0].transform.localPosition, effector.males[0].transform.localRotation),
+        //     (targetFemale.transform.position, targetFemale.transform.rotation));
+        (var relPos, var relRot) = compose(
+            (currentMale.transform.localPosition, currentMale.transform.localRotation),
+            (current.transform.localPosition, current.transform.localRotation));
 
-        // if (!ik.Arrived)
-        // {
-        //     arrivedSince = 1e38f;
-        // }
-        // else
-        // {
-        //     arrivedSince = Mathf.Min(arrivedSince, Time.time);
-        // }
+        (var pos, var rot) = compose(
+            invert(relPos, relRot),
+            (targetFemale.transform.position, targetFemale.transform.rotation));
+        robot.Target.transform.position = pos;
+        robot.Target.transform.rotation = rot;
+        yield return new WaitForSeconds(8f);
 
-        // if (working && schedule.Done(Time.time) && (Time.time - arrivedSince) > 1f)
-        // {
-        //     ik.target.position += new Vector3(0, 1f, 0);
-        //     working = false;
-        //     Attach();
-        // }
+        current.gameObject.transform.SetParent(target.transform);
+        current = null;
+    }
+
+    IEnumerator Go()
+    {
+        yield return Pickup(act, act.females[0]);
+        yield return Place(zoink, zoink.females[0], act.males[0]);
+    }
+
+    public void GoWrapper()
+    {
+        StartCoroutine(Go());
     }
 }
 
@@ -116,7 +98,7 @@ public class GoodArmEditor : Editor
         GoodArm arm = (GoodArm)target;
         if (GUILayout.Button("Sync"))
         {
-            arm.Pickup();
+            arm.GoWrapper();
         }
     }
 }
