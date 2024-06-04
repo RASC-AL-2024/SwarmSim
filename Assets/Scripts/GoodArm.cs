@@ -2,6 +2,15 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections;
 
+[System.Serializable]
+public record Connections
+{
+    public Lego lego;
+    public Transform attachFemale;
+    public Transform attachMale;
+    public Transform otherFemale;
+}
+
 public class GoodArm : MonoBehaviour
 {
     public Lego effector;
@@ -9,6 +18,9 @@ public class GoodArm : MonoBehaviour
 
     public Lego act;
     public Lego zoink;
+
+    [SerializeField]
+    public Connections[] connections;
 
     private bool working = false;
     private float arrivedSince = 1e38f;
@@ -49,7 +61,7 @@ public class GoodArm : MonoBehaviour
             (female.transform.position, female.transform.rotation));
         robot.Target.transform.position = pos;
         robot.Target.transform.rotation = rot;
-        yield return new WaitForSeconds(8f);
+        yield return new WaitForSeconds(6f);
         robot.Target.transform.position += 0.37f * female.transform.TransformDirection(Vector3.up);
         yield return new WaitForSeconds(4f);
 
@@ -57,7 +69,7 @@ public class GoodArm : MonoBehaviour
         lego.gameObject.transform.SetParent(robot.Joints[^1].transform);
     }
 
-    public IEnumerator Place(Lego target, Transform targetFemale, Transform currentMale)
+    public IEnumerator Place(Transform targetFemale, Transform currentMale)
     {
         (var relPos, var relRot) = compose(
             (currentMale.transform.localPosition, currentMale.transform.localRotation),
@@ -68,17 +80,22 @@ public class GoodArm : MonoBehaviour
         robot.Target.transform.position = pos;
         robot.Target.transform.rotation = rot;
         Debug.Log(robot.Target.transform.eulerAngles);
-        yield return new WaitForSeconds(8f);
+        yield return new WaitForSeconds(6f);
         robot.Target.transform.position += 0.37f * targetFemale.transform.TransformDirection(Vector3.up);
         yield return new WaitForSeconds(4f);
-        current.gameObject.transform.SetParent(target.transform);
+        current.gameObject.transform.SetParent(targetFemale.parent.transform);
         current = null;
     }
 
     IEnumerator Go()
     {
-        yield return Pickup(act, act.females[0]);
-        yield return Place(zoink, zoink.females[0], act.males[0]);
+        foreach (var connection in connections)
+        {
+            yield return Pickup(connection.lego, connection.attachFemale);
+            yield return Place(connection.otherFemale, connection.attachMale);
+        }
+        robot.Target.transform.localPosition = new Vector3(0, 2.5f, 0);
+        robot.Target.transform.localRotation = Quaternion.identity;
     }
 
     public void GoWrapper()
