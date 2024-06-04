@@ -27,7 +27,7 @@ public class GoodArm : MonoBehaviour
     private (Vector3, Quaternion) compose((Vector3 pos, Quaternion rot) tA, (Vector3 pos, Quaternion rot) tB)
     {
         // perform A, then perform B
-        return (tB.pos + tB.rot * tA.pos, tA.rot * tB.rot);
+        return (tB.pos + tB.rot * tA.pos, tB.rot * tA.rot);
     }
 
     private (Vector3, Quaternion) invert(Vector3 position, Quaternion rotation)
@@ -59,20 +59,18 @@ public class GoodArm : MonoBehaviour
 
     public IEnumerator Place(Lego target, Transform targetFemale, Transform currentMale)
     {
-        // (var pos, var rot) = compose(
-        //     invert(effector.males[0].transform.localPosition, effector.males[0].transform.localRotation),
-        //     (targetFemale.transform.position, targetFemale.transform.rotation));
         (var relPos, var relRot) = compose(
             (currentMale.transform.localPosition, currentMale.transform.localRotation),
             (current.transform.localPosition, current.transform.localRotation));
-
         (var pos, var rot) = compose(
             invert(relPos, relRot),
             (targetFemale.transform.position, targetFemale.transform.rotation));
         robot.Target.transform.position = pos;
         robot.Target.transform.rotation = rot;
+        Debug.Log(robot.Target.transform.eulerAngles);
         yield return new WaitForSeconds(8f);
-
+        robot.Target.transform.position += 0.37f * targetFemale.transform.TransformDirection(Vector3.up);
+        yield return new WaitForSeconds(4f);
         current.gameObject.transform.SetParent(target.transform);
         current = null;
     }
