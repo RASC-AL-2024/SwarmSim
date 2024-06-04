@@ -19,6 +19,7 @@ public record Schedule(Vector3 startPos, Quaternion startRot, float startTime, V
 public class GoodArm : MonoBehaviour
 {
     public Lego lego;
+    public Lego effector;
     private RevoluteRobot robot;
 
     private bool working = false;
@@ -35,16 +36,42 @@ public class GoodArm : MonoBehaviour
         StartCoroutine(PickupImpl());
     }
 
+    private (Vector3, Quaternion) compose((Vector3 pos, Quaternion rot) tA, (Vector3 pos, Quaternion rot) tB)
+    {
+        // perform A, then perform B
+        return (tB.pos + tB.rot * tA.pos, tA.rot * tB.rot);
+    }
+
+    private (Vector3, Quaternion) invert(Vector3 position, Quaternion rotation)
+    {
+        var inv = Quaternion.Inverse(rotation);
+        return (inv * -position, inv);
+    }
+
+    // target.l2w = start.l2w
+    // start.l2w = center.l2w @ s2.l2p
+    // target.l2w = start.l2w @ s2.l2p^{-1}
+    // just need to subtract local pos from target
+    //
+    // set target = goal -> center goes to goal
+    // set target = goal . T -> center goals to goal . T
+    // s2c = -5, target = T, goal = T + 5 implies center => T + 5, s2c = T
+    //
+
     IEnumerator PickupImpl()
     {
-        robot.Target.transform.position = lego.start.transform.position;
-        robot.Target.transform.rotation = lego.start.transform.rotation;
-        yield return new WaitForSeconds(6f);
-        robot.Target.transform.position = lego.end.transform.position;
-        robot.Target.transform.rotation = lego.end.transform.rotation;
-        yield return new WaitForSeconds(4f);
-        Attach();
-        robot.Target.transform.position += Vector3.up;
+        (var pos, var rot) = compose(
+            invert(effector.start.transform.localPosition, effector.start.transform.localRotation),
+            (lego.start.transform.position, lego.start.transform.rotation));
+        robot.Target.transform.position = pos;
+        robot.Target.transform.rotation = rot;
+        yield return new WaitForSeconds(8f);
+        robot.Target.transform.position += 0.37f * lego.start.transform.TransformDirection(Vector3.up);
+        // robot.Target.transform.position = lego.end.transform.position;
+        // robot.Target.transform.rotation = lego.end.transform.rotation;
+        // yield return new WaitForSeconds(4f);
+        // Attach();
+        // robot.Target.transform.position += Vector3.up;
     }
 
     void Attach()
