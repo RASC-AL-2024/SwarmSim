@@ -61,9 +61,16 @@ public class GoodArm : MonoBehaviour
             (female.transform.position, female.transform.rotation));
         robot.Target.transform.position = pos;
         robot.Target.transform.rotation = rot;
-        yield return new WaitForSeconds(6f);
-        robot.Target.transform.position += 0.37f * female.transform.TransformDirection(Vector3.up);
         yield return new WaitForSeconds(4f);
+
+        float end = Time.time + 2f;
+        var old = robot.Target.transform.position;
+        while (Time.time < end)
+        {
+            float t = 1 - (end - Time.time) / 2;
+            robot.Target.transform.position = old + t * 0.37f * female.transform.TransformDirection(Vector3.up);
+            yield return null;
+        }
 
         // Attach
         lego.gameObject.transform.SetParent(robot.Joints[^1].transform);
@@ -80,9 +87,17 @@ public class GoodArm : MonoBehaviour
         robot.Target.transform.position = pos;
         robot.Target.transform.rotation = rot;
         Debug.Log(robot.Target.transform.eulerAngles);
-        yield return new WaitForSeconds(6f);
-        robot.Target.transform.position += 0.37f * targetFemale.transform.TransformDirection(Vector3.up);
         yield return new WaitForSeconds(4f);
+
+        float end = Time.time + 2f;
+        var old = robot.Target.transform.position;
+        while (Time.time < end)
+        {
+            float t = 1 - (end - Time.time) / 2;
+            robot.Target.transform.position = old + t * 0.37f * targetFemale.transform.TransformDirection(Vector3.up);
+            yield return null;
+        }
+
         current.gameObject.transform.SetParent(targetFemale.parent.transform);
         current = null;
     }

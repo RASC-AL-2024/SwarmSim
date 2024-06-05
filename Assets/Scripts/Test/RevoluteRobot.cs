@@ -38,14 +38,14 @@ public class RevoluteRobot : RobotBase
     // Update is called once per frame
     void Update()
     {
-        if (EnableForwardKinematics)
-        {
-            SetQ(ForwardKinematicsQ);
-        }
-
         if (EnableInverseKinematics)
         {
             FollowTargetOneStep(Target);
+        }
+
+        if (lerp != null && Time.time <= lerp.endTime)
+        {
+            SetQ(lerp.Get(Time.time));
         }
 
         Robot.JointController.ReportNewFrame(Time.deltaTime);

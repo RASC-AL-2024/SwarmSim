@@ -3,6 +3,59 @@ using RobotDynamics.MathUtilities;
 using System.Collections.Generic;
 using UnityEngine;
 
+public class Lerp
+{
+    public float startTime;
+    public float endTime;
+
+    private double[] start;
+    private double[] end;
+    public Lerp(double[] start, double[] end, float startTime, float endTime)
+    {
+        this.start = start;
+        this.end = end;
+        this.startTime = startTime;
+        this.endTime = endTime;
+
+        for (int i = 0; i < end.Length; ++i)
+        {
+            start[i] = start[i] - (System.Math.Floor(start[i] / (2 * Mathf.PI)) * 2 * Mathf.PI);
+            end[i] = end[i] - (System.Math.Floor(end[i] / (2 * Mathf.PI)) * 2 * Mathf.PI);
+            Debug.Log($"{start[i]}, {end[i]}");
+            if (i == 1)
+            {
+                Debug.Log("HERE");
+                // I don't care about good code
+                if (end[i] > Mathf.PI && start[i] < Mathf.PI)
+                    end[i] = end[i] - 2 * Mathf.PI;
+
+                if (start[i] > Mathf.PI && end[i] < Mathf.PI)
+                    start[i] = start[i] - 2 * Mathf.PI;
+
+                continue;
+            }
+            // end[i] = end[i] % (2 * Mathf.PI);
+            if (end[i] > start[i] && (2 * Mathf.PI - end[i] + start[i]) < end[i] - start[i])
+                end[i] = end[i] - 2 * Mathf.PI;
+            else if ((2 * Mathf.PI - start[i] + end[i]) < start[i] - end[i])
+                start[i] = start[i] - 2 * Mathf.PI;
+            Debug.Log($"{start[i]}, {end[i]}");
+        }
+    }
+
+    public double[] Get(float now)
+    {
+        var t = Mathf.Clamp((now - startTime) / (endTime - startTime), 0, 1);
+        var cur = new double[start.Length];
+        for (int i = 0; i < start.Length; ++i)
+        {
+            cur[i] = t * end[i] + (1 - t) * start[i];
+            // Debug.Log($"{t}, {cur[i]}, {end[i]}, {start[i]}");
+        }
+        return cur;
+    }
+}
+
 public class RobotBase : MonoBehaviour
 {
     [Range(0, 1)]
@@ -52,6 +105,7 @@ public class RobotBase : MonoBehaviour
     private double[] last_q;
     public double[] ForwardKinematicsQ;
     private Matrix alpha;
+    protected Lerp lerp;
 
     protected void SetQ(double[] q)
     {
@@ -80,15 +134,22 @@ public class RobotBase : MonoBehaviour
                 Vector r_des = Target.transform.localPosition.ToVector();
                 RotationMatrix C_des = Target.transform.EulerAnglesToRotationMatrix();
 
-                var result = Robot.ComputeInverseKinematics(r_des, C_des, alpha, Lambda, MaxIter, Tolerance, UseLastQAsInit ? last_q : null);
+                var result = Robot.ComputeInverseKinematics(r_des, C_des, alpha, Lambda, MaxIter, Tolerance, (UseLastQAsInit && last_q != null) ? (double[])last_q.Clone() : null);
+
+                for (int i = 0; i < result.q.Length; ++i)
+                {
+                    if (last_q != null && last_q[i] == result.q[i])
+                        Debug.Log("true");
+                }
 
                 if (result.DidConverge)
                 {
+                    var old_q = last_q != null ? last_q : result.q;
                     last_q = result.q;
 
                     if (!EnablePController)
                     {
-                        SetQ(result.q);
+                        lerp = new Lerp((double[])old_q.Clone(), (double[])result.q.Clone(), Time.time, Time.time + 4f);
                     }
                 }
                 else
@@ -99,13 +160,11 @@ public class RobotBase : MonoBehaviour
         }
     }
 
-
-
     private void ControlledJointsChanged(object sender, JointsChangedEventArgs e)
     {
         if (!EnablePController) return;
 
         if (e.DidConverge)
-            SetQ(e.joint_values);
+            SetQ((double[])e.joint_values.Clone());
     }
 }
