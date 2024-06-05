@@ -21,10 +21,8 @@ public class Lerp
         {
             start[i] = start[i] - (System.Math.Floor(start[i] / (2 * Mathf.PI)) * 2 * Mathf.PI);
             end[i] = end[i] - (System.Math.Floor(end[i] / (2 * Mathf.PI)) * 2 * Mathf.PI);
-            Debug.Log($"{start[i]}, {end[i]}");
             if (i == 1)
             {
-                Debug.Log("HERE");
                 // I don't care about good code
                 if (end[i] > Mathf.PI && start[i] < Mathf.PI)
                     end[i] = end[i] - 2 * Mathf.PI;
@@ -39,7 +37,6 @@ public class Lerp
                 end[i] = end[i] - 2 * Mathf.PI;
             else if ((2 * Mathf.PI - start[i] + end[i]) < start[i] - end[i])
                 start[i] = start[i] - 2 * Mathf.PI;
-            Debug.Log($"{start[i]}, {end[i]}");
         }
     }
 
@@ -50,7 +47,6 @@ public class Lerp
         for (int i = 0; i < start.Length; ++i)
         {
             cur[i] = t * end[i] + (1 - t) * start[i];
-            // Debug.Log($"{t}, {cur[i]}, {end[i]}, {start[i]}");
         }
         return cur;
     }

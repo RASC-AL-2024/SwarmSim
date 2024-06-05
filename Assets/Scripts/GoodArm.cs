@@ -53,6 +53,25 @@ public class GoodArm : MonoBehaviour
         return invert(x.position, x.rotation);
     }
 
+    public IEnumerator LerpDirection(float time, float distance, Vector3 direction)
+    {
+        float end = Time.time + time;
+        var old = robot.Target.transform.position;
+        while (Time.time < end)
+        {
+            float t = 1 - (end - Time.time) / time;
+            robot.Target.transform.position = old + t * distance * direction;
+            yield return null;
+        }
+    }
+
+    public IEnumerator Reset()
+    {
+        robot.Target.transform.localPosition = new Vector3(0.12f, 2.77f, 0);
+        robot.Target.transform.localRotation = Quaternion.identity;
+        yield return new WaitForSeconds(4f);
+    }
+
     public IEnumerator Pickup(Lego lego, Transform female)
     {
         current = lego;
@@ -63,14 +82,7 @@ public class GoodArm : MonoBehaviour
         robot.Target.transform.rotation = rot;
         yield return new WaitForSeconds(4f);
 
-        float end = Time.time + 2f;
-        var old = robot.Target.transform.position;
-        while (Time.time < end)
-        {
-            float t = 1 - (end - Time.time) / 2;
-            robot.Target.transform.position = old + t * 0.37f * female.transform.TransformDirection(Vector3.up);
-            yield return null;
-        }
+        yield return LerpDirection(2f, 0.37f, female.transform.TransformDirection(Vector3.up));
 
         // Attach
         lego.gameObject.transform.SetParent(robot.Joints[^1].transform);
@@ -84,19 +96,15 @@ public class GoodArm : MonoBehaviour
         (var pos, var rot) = compose(
             invert(relPos, relRot),
             (targetFemale.transform.position, targetFemale.transform.rotation));
-        robot.Target.transform.position = pos;
+        robot.Target.transform.position = pos + Vector3.up * 0.8f;
         robot.Target.transform.rotation = rot;
-        Debug.Log(robot.Target.transform.eulerAngles);
         yield return new WaitForSeconds(4f);
 
-        float end = Time.time + 2f;
-        var old = robot.Target.transform.position;
-        while (Time.time < end)
-        {
-            float t = 1 - (end - Time.time) / 2;
-            robot.Target.transform.position = old + t * 0.37f * targetFemale.transform.TransformDirection(Vector3.up);
-            yield return null;
-        }
+        robot.Target.transform.position = pos;
+        robot.Target.transform.rotation = rot;
+        yield return new WaitForSeconds(4f);
+
+        yield return LerpDirection(2f, 0.37f, targetFemale.transform.TransformDirection(Vector3.up));
 
         current.gameObject.transform.SetParent(targetFemale.parent.transform);
         current = null;
