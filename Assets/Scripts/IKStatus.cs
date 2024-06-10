@@ -91,12 +91,7 @@ public class IKStatus : IKStatusAbstract
         errorChange.update(delta);
         oldError = newError;
 
-        if (newError <= 0.05)
-            Debug.Log("small error");
-        if (errorChange.Count() > 60 && errorChange.Average <= 0.0001)
-            Debug.Log("other average backout");
-
-        return newError <= 0.05 || (errorChange.Count() > 60 && errorChange.Average <= 0.00001);
+        return newError <= 0.05 || (errorChange.Count() > 120 && errorChange.Average <= 0.0001);
     }
 }
 
