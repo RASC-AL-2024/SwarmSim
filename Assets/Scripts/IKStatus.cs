@@ -89,8 +89,14 @@ public class IKStatus : IKStatusAbstract
         var newError = ik.Error().magnitude;
         var delta = newError - (oldError ?? newError);
         errorChange.update(delta);
+        oldError = newError;
 
-        return newError <= 0.5 || (errorChange.Count() > 60 && errorChange.Average <= 0.0001);
+        if (newError <= 0.05)
+            Debug.Log("small error");
+        if (errorChange.Count() > 60 && errorChange.Average <= 0.0001)
+            Debug.Log("other average backout");
+
+        return newError <= 0.05 || (errorChange.Count() > 60 && errorChange.Average <= 0.00001);
     }
 }
 

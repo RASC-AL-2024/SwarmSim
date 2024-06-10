@@ -297,7 +297,7 @@ public class GameAgent : FailableModule
     private float wheel_diameter = 0.336f;
     private float axle_width = 0.60f;
     private float maxwheel_velocity = 2; // rad/s
-    private float min_goal_distance = 5f; // 3
+    private float min_goal_distance = 1.5f; // 3
 
     public MotionPlanner motion_planner;
 

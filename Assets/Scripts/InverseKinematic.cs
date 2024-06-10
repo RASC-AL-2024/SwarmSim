@@ -64,7 +64,7 @@ public class InverseKinematics : MonoBehaviour
         bodies[^1].GetDenseJacobian(ref jacobian);
 
         var error = Error();
-        if (error.magnitude < 0.1)
+        if (error.magnitude < 0.05)
         {
             return;
         }
@@ -81,7 +81,7 @@ public class InverseKinematics : MonoBehaviour
             float gradient = 0f;
             for (int j = 0; j < 3; ++j)
             {
-                gradient += Time.deltaTime * error[j] * jacobian[jacobian.rows - 6 + j, i - 1];
+                gradient += 1f * error[j] * jacobian[jacobian.rows - 6 + j, i - 1];
             }
 
             var drive = bodies[i].xDrive;

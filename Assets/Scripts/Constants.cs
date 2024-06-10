@@ -43,7 +43,7 @@ public static class Constants
     public const float roverSpeed = 0.015f; // m/s (curiosity is like 0.04)
 
     // Fast-mode
-    public const bool isFast = true; // disables RVO, and arm animations
+    public const bool isFast = false; // disables RVO, and arm animations
 
     // Robot creation
     public const double armRoverRatio = 0.5;
